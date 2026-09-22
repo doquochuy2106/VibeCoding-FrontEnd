@@ -1,0 +1,47 @@
+.app-header {
+  background: #ffffff;
+  border-bottom: 1px solid #eef2f6;
+  padding: 0.85rem 1.5rem;
+}
+
+.header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.brand-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #6c5ce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.brand-icon-box svg {
+  width: 18px;
+  height: 18px;
+}
+
+.brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.user-name-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+}

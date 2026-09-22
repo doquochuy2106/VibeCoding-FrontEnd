@@ -1,0 +1,257 @@
+/* ==========================================================================
+   Todo List UI - Minimalist & Clean Style (theo mẫu ảnh)
+   ========================================================================== */
+
+/* Căn giữa toàn bộ Todo Card trên trang */
+.todo-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 1.5rem 1rem;
+}
+
+/* Thẻ Todo Card chính */
+.todo-card-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 24px;
+  padding: 2.25rem 2rem 1.75rem;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.07), 0 5px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+/* Tiêu đề & phụ đề */
+.todo-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.todo-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.todo-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Khung nhập công việc mới */
+.todo-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 0.75rem 1.15rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.925rem;
+  color: #1e293b;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.todo-input::placeholder {
+  color: #94a3b8;
+}
+
+.todo-input:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+}
+
+.todo-add-btn {
+  background: #6c5ce7;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.925rem;
+  padding: 0.75rem 1.35rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.todo-add-btn:hover {
+  background: #5b4bc4;
+  transform: translateY(-1px);
+}
+
+.todo-add-btn:active {
+  transform: translateY(0);
+}
+
+/* Danh sách các công việc */
+.todo-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+/* Từng dòng việc cần làm (item) */
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #f4f5f9;
+  border-radius: 14px;
+  padding: 0.95rem 1.15rem;
+  transition: all 0.15s ease;
+}
+
+.todo-item:hover {
+  background: #eceef5;
+}
+
+/* Bên trái item: Checkbox + Tên việc */
+.todo-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+/* Checkbox ô vuông bo tròn */
+.todo-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.todo-checkbox:hover {
+  border-color: #6c5ce7;
+}
+
+/* Khi đã hoàn thành (checked) */
+.todo-item.completed .todo-checkbox {
+  background: #6c5ce7;
+  border-color: #6c5ce7;
+  color: #ffffff;
+}
+
+.todo-checkbox svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 3;
+}
+
+/* Text tên công việc */
+.todo-item-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.35;
+  transition: all 0.15s ease;
+}
+
+.todo-item.completed .todo-item-text {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+/* Bên phải item: Badge số thứ tự + Nút xóa */
+.todo-item-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.todo-item-badge {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: #e9ecf2;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Nút xóa icon dấu X */
+.todo-item-delete {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.todo-item-delete svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.todo-item-delete:hover {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+/* Phần chân của Todo Card */
+.todo-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+}
+
+.todo-uncompleted-count {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.todo-clear-completed-btn {
+  background: none;
+  border: none;
+  color: #6c5ce7;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.todo-clear-completed-btn:hover {
+  color: #5b4bc4;
+  background: #f3f0ff;
+}
+
+/* Responsive nhỏ cho điện thoại */
+@media (max-width: 480px) {
+  .todo-card-container {
+    padding: 1.5rem 1.25rem 1.25rem;
+    border-radius: 18px;
+  }
+
+  .todo-title {
+    font-size: 1.5rem;
+  }
+}
