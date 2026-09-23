@@ -1,94 +1,107 @@
+import { useState } from "react";
 import "./todo.css";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-toastify";
 
-export interface ITodoItem {
-  id: number;
+interface ITodos {
+  id: number | string;
   name: string;
-  isComplete?: boolean;
-  completed?: boolean;
-  description?: string;
+  isComplete: boolean;
 }
 
 interface IProps {
-  todos: ITodoItem[];
+  todos: ITodos[];
   name?: string;
   age?: number;
+  setTodos: (v: ITodos[]) => void;
+  deleteTodo: (v: string | number) => void;
+  checkedTodo: (id: string | number, checked: boolean) => void;
+  deleteAll: () => void;
 }
 
 const TodoList = (props: IProps) => {
-  const { todos } = props;
+  const { todos, setTodos, deleteTodo, checkedTodo, deleteAll } = props;
 
-  // Đếm số việc chưa hoàn thành (UI mockup, logic tự động theo props)
-  const uncompletedCount = todos.filter(
-    (item) => !(item.isComplete || item.completed)
-  ).length;
+  const [inputTodo, setInputTodo] = useState<string>("");
+
+  const handleAdd = () => {
+    if (!inputTodo) {
+      toast.error("Todo không được để trống.");
+      return;
+    }
+    setTodos([...todos, { id: uuidv4(), name: inputTodo, isComplete: false }]);
+    setInputTodo("");
+    toast.success("thêm mới todo thành công.");
+  };
+
+  const handleDelete = (id: string | number) => {
+    deleteTodo(id);
+    toast.success("xóa todo thành công");
+  };
+
+  const handleCheckbox = (id: string | number, checked: boolean) => {
+    checkedTodo(id, checked);
+  };
 
   return (
     <div className="todo-page-wrapper">
       <div className="todo-card-container">
-        {/* Header: Tiêu đề & Phụ đề */}
         <div className="todo-header">
           <h1 className="todo-title">Todo List</h1>
           <p className="todo-subtitle">Quản lý công việc của bạn mỗi ngày</p>
         </div>
 
-        {/* Khung nhập công việc mới */}
         <form onSubmit={(e) => e.preventDefault()} className="todo-input-row">
           <input
             type="text"
             className="todo-input"
             placeholder="Thêm công việc mới..."
-            /* 👉 Gắn value={name} và onChange={(e) => setName(e.target.value)} ở đây */
+            value={inputTodo}
+            onChange={(event) => {
+              setInputTodo(event.target.value);
+            }}
           />
           <button
             type="button"
             className="todo-add-btn"
-            /* 👉 Gắn onClick={handleAddNewTodo} ở đây */
+            onClick={() => {
+              handleAdd();
+            }}
           >
             Thêm
           </button>
         </form>
 
-        {/* Danh sách công việc */}
         <div className="todo-items-list">
           {todos.map((item, index) => {
-            const isDone = item.isComplete || item.completed || false;
+            const isDone = item.isComplete || false;
 
             return (
               <div
                 key={item.id}
                 className={`todo-item ${isDone ? "completed" : ""}`}
               >
-                {/* Checkbox & Tên việc */}
                 <div className="todo-item-left">
-                  <button
-                    type="button"
+                  <input
+                    type="checkbox"
                     className="todo-checkbox"
-                    title={isDone ? "Đánh dấu chưa xong" : "Đánh dấu đã xong"}
-                    /* 👉 Gắn onClick={() => handleToggle(item.id)} ở đây */
-                  >
-                    {isDone && (
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
+                    checked={isDone}
+                    onChange={(e) => {
+                      handleCheckbox(item.id, e.target.checked);
+                    }}
+                  />
                   <span className="todo-item-text">{item.name}</span>
                 </div>
 
-                {/* Thứ tự & Nút xóa */}
                 <div className="todo-item-right">
                   <span className="todo-item-badge">#{index + 1}</span>
                   <button
                     type="button"
                     className="todo-item-delete"
                     title="Xóa công việc"
-                    /* 👉 Gắn onClick={() => handleDelete(item.id)} ở đây */
+                    onClick={() => {
+                      handleDelete(item.id);
+                    }}
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -107,15 +120,13 @@ const TodoList = (props: IProps) => {
           })}
         </div>
 
-        {/* Footer của Card: Đếm việc chưa xong & Nút Xóa đã hoàn thành */}
         <div className="todo-footer">
-          <span className="todo-uncompleted-count">
-            {uncompletedCount} việc chưa hoàn thành
-          </span>
           <button
             type="button"
             className="todo-clear-completed-btn"
-            /* 👉 Gắn onClick={handleClearCompleted} ở đây */
+            onClick={() => {
+              deleteAll();
+            }}
           >
             Xóa đã hoàn thành
           </button>

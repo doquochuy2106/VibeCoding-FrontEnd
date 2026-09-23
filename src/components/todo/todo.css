@@ -125,35 +125,11 @@
 
 /* Checkbox ô vuông bo tròn */
 .todo-checkbox {
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  border: 2px solid #cbd5e1;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  padding: 0;
-}
-
-.todo-checkbox:hover {
-  border-color: #6c5ce7;
-}
-
-/* Khi đã hoàn thành (checked) */
-.todo-item.completed .todo-checkbox {
-  background: #6c5ce7;
-  border-color: #6c5ce7;
-  color: #ffffff;
-}
-
-.todo-checkbox svg {
-  width: 13px;
-  height: 13px;
-  stroke-width: 3;
+  accent-color: #6c5ce7;
+  flex-shrink: 0;
 }
 
 /* Text tên công việc */
