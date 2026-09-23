@@ -1,17 +1,45 @@
-import TodoList, { type ITodoItem } from "./todo/todo-list";
+import { useState } from "react";
+import TodoList from "./todo/todo-list";
+import { toast } from "react-toastify";
+
+interface ITodos {
+  id: number | string;
+  name: string;
+  isComplete: boolean;
+}
 
 const Home = () => {
-  // Dữ liệu mẫu khớp 100% với giao diện trong hình bạn gửi
-  const todos: ITodoItem[] = [
-    { id: 1, name: "Learn React", isComplete: false },
-    { id: 2, name: "Learn TypeScript", isComplete: true },
-    { id: 3, name: "Build a Todo App", isComplete: false },
-    { id: 4, name: "Vibe coding with hoidanit", isComplete: false },
-  ];
+  const [todos, setTodos] = useState<ITodos[]>([]);
+
+  const deleteTodo = (id: string | number) => {
+    let newTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(newTodos);
+  };
+
+  const checkedTodo = (id: string | number, checked: boolean) => {
+    let newTodosChecked = todos.map((todo) =>
+      todo.id == id ? { ...todo, isComplete: checked } : todo,
+    );
+    setTodos(newTodosChecked);
+  };
+
+  const deleteAll = () => {
+    let newTodos = todos.filter((todo) => todo.isComplete == false);
+    setTodos(newTodos);
+    toast.success("Xóa toàn bộ Todo thành công ");
+  };
 
   return (
     <div>
-      <TodoList todos={todos} name={"Quốc Huy"} age={22} />
+      <TodoList
+        todos={todos}
+        setTodos={setTodos}
+        name={"Quốc Huy"}
+        age={22}
+        deleteTodo={deleteTodo}
+        checkedTodo={checkedTodo}
+        deleteAll={deleteAll}
+      />
     </div>
   );
 };
