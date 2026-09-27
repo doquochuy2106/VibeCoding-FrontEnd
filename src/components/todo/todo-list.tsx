@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 
 interface ITodos {
   id: number | string;
-  name: string;
+
+  title: string;
   isComplete: boolean;
 }
 
@@ -29,7 +30,7 @@ const TodoList = (props: IProps) => {
       toast.error("Todo không được để trống.");
       return;
     }
-    setTodos([...todos, { id: uuidv4(), name: inputTodo, isComplete: false }]);
+    setTodos([...todos, { id: uuidv4(), title: inputTodo, isComplete: false }]);
     setInputTodo("");
     toast.success("thêm mới todo thành công.");
   };
@@ -90,7 +91,7 @@ const TodoList = (props: IProps) => {
                       handleCheckbox(item.id, e.target.checked);
                     }}
                   />
-                  <span className="todo-item-text">{item.name}</span>
+                  <span className="todo-item-text">{item.title}</span>
                 </div>
 
                 <div className="todo-item-right">

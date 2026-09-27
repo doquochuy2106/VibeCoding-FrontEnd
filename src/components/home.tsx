@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TodoList from "./todo/todo-list";
 import { toast } from "react-toastify";
 
 interface ITodos {
   id: number | string;
-  name: string;
+  title: string;
   isComplete: boolean;
 }
 
 const Home = () => {
   const [todos, setTodos] = useState<ITodos[]>([]);
+
+  useEffect(() => {
+    const getAlltodos = async () => {
+      const res = await fetch("http://localhost:3000/todos");
+      const data = await res.json();
+      console.log("check data: ", data);
+      setTodos(data);
+    };
+    getAlltodos();
+  }, []);
 
   const deleteTodo = (id: string | number) => {
     let newTodos = todos.filter((todo) => todo.id !== id);
