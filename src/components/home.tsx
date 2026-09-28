@@ -5,38 +5,49 @@ import { toast } from "react-toastify";
 interface ITodos {
   id: number | string;
   title: string;
-  isComplete: boolean;
+  completed: boolean;
 }
 
 const Home = () => {
   const [todos, setTodos] = useState<ITodos[]>([]);
 
   useEffect(() => {
-    const getAlltodos = async () => {
-      const res = await fetch("http://localhost:3000/todos");
-      const data = await res.json();
-      console.log("check data: ", data);
-      setTodos(data);
-    };
     getAlltodos();
   }, []);
 
-  const deleteTodo = (id: string | number) => {
-    let newTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(newTodos);
+  const getAlltodos = async () => {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
+    const data = await res.json();
+    console.log("check data: ", data);
+    setTodos(data);
   };
 
-  const checkedTodo = (id: string | number, checked: boolean) => {
-    let newTodosChecked = todos.map((todo) =>
-      todo.id == id ? { ...todo, isComplete: checked } : todo,
-    );
-    setTodos(newTodosChecked);
-  };
+  const deleteAll = async () => {
+    const completedTodos = todos.filter((todo) => todo.completed === true);
 
-  const deleteAll = () => {
-    let newTodos = todos.filter((todo) => todo.isComplete == false);
-    setTodos(newTodos);
-    toast.success("Xóa toàn bộ Todo thành công ");
+    if (completedTodos.length === 0) {
+      toast.info("Không có todo nào đã hoàn thành để xóa.");
+      return;
+    }
+
+    try {
+      await Promise.all(
+        completedTodos.map((todo) =>
+          fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${todo.id}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }),
+        ),
+      );
+
+      await getAlltodos();
+      toast.success("Xóa các todo đã hoàn thành thành công.");
+    } catch (error) {
+      console.error("Lỗi khi xóa todo: ", error);
+      toast.error("Có lỗi xảy ra khi xóa todo.");
+    }
   };
 
   return (
@@ -46,9 +57,8 @@ const Home = () => {
         setTodos={setTodos}
         name={"Quốc Huy"}
         age={22}
-        deleteTodo={deleteTodo}
-        checkedTodo={checkedTodo}
         deleteAll={deleteAll}
+        getAlltodos={getAlltodos}
       />
     </div>
   );

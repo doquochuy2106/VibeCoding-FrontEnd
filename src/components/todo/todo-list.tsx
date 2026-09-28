@@ -1,13 +1,12 @@
 import { useState } from "react";
 import "./todo.css";
-import { v4 as uuidv4 } from "uuid";
+
 import { toast } from "react-toastify";
 
 interface ITodos {
   id: number | string;
-
   title: string;
-  isComplete: boolean;
+  completed: boolean;
 }
 
 interface IProps {
@@ -15,33 +14,64 @@ interface IProps {
   name?: string;
   age?: number;
   setTodos: (v: ITodos[]) => void;
-  deleteTodo: (v: string | number) => void;
-  checkedTodo: (id: string | number, checked: boolean) => void;
   deleteAll: () => void;
+  getAlltodos: () => Promise<void>;
 }
 
 const TodoList = (props: IProps) => {
-  const { todos, setTodos, deleteTodo, checkedTodo, deleteAll } = props;
+  const { todos, setTodos, deleteAll, getAlltodos } = props;
 
   const [inputTodo, setInputTodo] = useState<string>("");
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!inputTodo) {
       toast.error("Todo không được để trống.");
       return;
     }
-    setTodos([...todos, { id: uuidv4(), title: inputTodo, isComplete: false }]);
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: inputTodo,
+        completed: false,
+      }),
+    });
+    const data = await res.json();
+    console.log("check data: ", data);
+
     setInputTodo("");
+    await getAlltodos();
+
     toast.success("thêm mới todo thành công.");
   };
 
-  const handleDelete = (id: string | number) => {
-    deleteTodo(id);
-    toast.success("xóa todo thành công");
+  const handleDelete = async (id: string | number) => {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    console.log("check data: ", data);
+    await getAlltodos();
+    toast.success("Xoa todo thanh cong");
   };
 
-  const handleCheckbox = (id: string | number, checked: boolean) => {
-    checkedTodo(id, checked);
+  const handleCheckbox = async (id: string | number, checked: boolean) => {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        completed: checked,
+      }),
+    });
+    await getAlltodos();
   };
 
   return (
@@ -75,7 +105,7 @@ const TodoList = (props: IProps) => {
 
         <div className="todo-items-list">
           {todos.map((item, index) => {
-            const isDone = item.isComplete || false;
+            const isDone = item.completed || false;
 
             return (
               <div
