@@ -1,8 +1,19 @@
 .app-footer {
-  text-align: center;
-  padding: 1.25rem;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  border-top: 1px solid #eef2f6;
+  padding: 24px 32px;
+  margin-top: 40px;
   background: #ffffff;
+  border-top: 1px solid #eceef2;
+  text-align: center;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.app-footer-text {
+  margin: 0;
+  font-size: 13px;
+  color: #8a8f98;
+}
+
+.app-footer-text span {
+  color: #6c5ce7;
+  font-weight: 600;
 }

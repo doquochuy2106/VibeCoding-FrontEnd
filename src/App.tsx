@@ -1,17 +1,48 @@
-import Footer from "./components/footer";
-import Header from "./components/header";
-import Home from "./components/home";
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Footer from "./components/footer"
+import Header from "./components/header"
+import Home from "./components/home"
+import AdminLayout from "./admin/layout/admin-layout"
+import DashboardPage from "./admin/pages/dashboard"
+import UsersPage from "./admin/pages/users"
+import ProductsPage from "./admin/pages/products"
+import SettingsPage from "./admin/pages/settings"
+import { ThemeProvider } from "./hooks/use-theme"
+import './global.css'
 
-const App = () => {
+function ClientLayout() {
   return (
-    <div className="app-container">
-      <Header />
-      <main className="main-content">
+    <div className="hoidanit min-h-screen flex flex-col justify-between">
+      <div>
+        <Header />
+        <div className="text-center my-6">
+          <h1 className="text-3xl font-bold underline text-primary">
+            Hello world! with tailwind
+          </h1>
+        </div>
         <Home />
-      </main>
+      </div>
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+function App() {
+  return (
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<ClientLayout />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="products" element={<ProductsPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+  )
+}
+
+export default App
