@@ -1,52 +1,89 @@
-import { useEffect, useState } from "react";
-import TodoList from "./todo/todo-list";
-import { toast } from "react-toastify";
+import { useEffect, useState, useCallback } from "react";
+import TodoList from "./todo/todo.list";
+import { toast } from 'react-toastify';
 
-interface ITodos {
+interface ITodo {
   id: number | string;
   title: string;
   completed: boolean;
 }
 
 const Home = () => {
-  const [todos, setTodos] = useState<ITodos[]>([]);
+  const [todos, setTodos] = useState<ITodo[]>([]);
 
-  useEffect(() => {
-    getAlltodos();
+  const fetchTodo = useCallback(async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
+      if (res.ok) {
+        const data = await res.json();
+        setTodos(data);
+      }
+    } catch (e) {
+      console.error("fetchTodo error:", e);
+    }
   }, []);
 
-  const getAlltodos = async () => {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
-    const data = await res.json();
-    console.log("check data: ", data);
-    setTodos(data);
+  useEffect(() => {
+    let active = true;
+    const init = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
+        if (res.ok) {
+          const data = await res.json();
+          if (active) setTodos(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    init();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const deleteTodoById = (inputId: string | number) => {
+    const newTodos = todos.filter(todo => todo.id !== inputId);
+    setTodos(newTodos);
+    toast.success("Xóa todo thành công.");
   };
 
-  const deleteAll = async () => {
-    const completedTodos = todos.filter((todo) => todo.completed === true);
-
-    if (completedTodos.length === 0) {
-      toast.info("Không có todo nào đã hoàn thành để xóa.");
-      return;
+  const handleCheckedTodo = async (id: string | number, isChecked: boolean) => {
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          completed: isChecked
+        })
+      });
+      await fetchTodo();
+    } catch (e) {
+      console.error(e);
     }
+  };
+
+  const deleteCompleted = async () => {
+    const completedTodos = todos.filter(todo => todo.completed === true);
 
     try {
       await Promise.all(
-        completedTodos.map((todo) =>
+        completedTodos.map(todo =>
           fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${todo.id}`, {
             method: "DELETE",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "application/json"
             },
-          }),
-        ),
+          })
+        )
       );
-
-      await getAlltodos();
-      toast.success("Xóa các todo đã hoàn thành thành công.");
-    } catch (error) {
-      console.error("Lỗi khi xóa todo: ", error);
-      toast.error("Có lỗi xảy ra khi xóa todo.");
+      await fetchTodo();
+      toast.success("Đã xóa tất cả todos hoàn thành.");
+    } catch (e) {
+      console.error(e);
+      toast.error("Có lỗi xảy ra khi xóa.");
     }
   };
 
@@ -54,11 +91,13 @@ const Home = () => {
     <div>
       <TodoList
         todos={todos}
+        name={"eric"}
+        age={30}
+        deleteTodoById={deleteTodoById}
         setTodos={setTodos}
-        name={"Quốc Huy"}
-        age={22}
-        deleteAll={deleteAll}
-        getAlltodos={getAlltodos}
+        handleCheckedTodo={handleCheckedTodo}
+        deleteCompleted={deleteCompleted}
+        fetchTodo={fetchTodo}
       />
     </div>
   );

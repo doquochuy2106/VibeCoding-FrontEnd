@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  /* Paper: cool light canvas, not cream — keeps a technical, editor-like feel */
+  --background: #f5f6fa;
+  --foreground: #12172b;
+
+  --card: #ffffff;
+  --card-foreground: #12172b;
+  --popover: #ffffff;
+  --popover-foreground: #12172b;
+
+  /* Emerald: the brand accent — reads as "compiled / all good", not a generic SaaS blue */
+  --primary: #0f8f6f;
+  --primary-foreground: #ffffff;
+
+  --secondary: #edeff5;
+  --secondary-foreground: #12172b;
+  --muted: #edeff5;
+  --muted-foreground: #656d84;
+
+  --accent: #e5f4ee;
+  --accent-foreground: #0f8f6f;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --success: #0f8f6f;
+  --warning: #b7791f;
+
+  --border: #e2e4ee;
+  --input: #e2e4ee;
+  --ring: #0f8f6f;
+
+  /* Sidebar stays a fixed "console" panel in both themes — the page's signature element */
+  --sidebar: #10142a;
+  --sidebar-foreground: #c8cee0;
+  --sidebar-primary: #1fd1a5;
+  --sidebar-primary-foreground: #0b1020;
+  --sidebar-accent: #1a2044;
+  --sidebar-accent-foreground: #f3f5fa;
+  --sidebar-border: #232a4d;
+  --sidebar-ring: #1fd1a5;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Be Vietnam Pro", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.dark {
+  --background: #0b0e1c;
+  --foreground: #e6e8f2;
+
+  --card: #131730;
+  --card-foreground: #e6e8f2;
+  --popover: #131730;
+  --popover-foreground: #e6e8f2;
+
+  --primary: #1fd1a5;
+  --primary-foreground: #06140f;
+
+  --secondary: #1c2140;
+  --secondary-foreground: #e6e8f2;
+  --muted: #1a1f3a;
+  --muted-foreground: #8b92ad;
+
+  --accent: #1c2b40;
+  --accent-foreground: #4fe3bd;
+
+  --destructive: #ff6b6b;
+  --destructive-foreground: #1a0505;
+
+  --success: #1fd1a5;
+  --warning: #e8b04b;
+
+  --border: #242a4a;
+  --input: #242a4a;
+  --ring: #1fd1a5;
+
+  --sidebar: #0a0d1a;
+  --sidebar-foreground: #c8cee0;
+  --sidebar-primary: #1fd1a5;
+  --sidebar-primary-foreground: #0b1020;
+  --sidebar-accent: #171c38;
+  --sidebar-accent-foreground: #f3f5fa;
+  --sidebar-border: #1e2444;
+  --sidebar-ring: #1fd1a5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary), transparent 75%);
+  }
+}
+
+@layer utilities {
+  .font-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
