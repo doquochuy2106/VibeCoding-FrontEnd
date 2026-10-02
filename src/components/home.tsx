@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import TodoList from "./todo/todo.list";
 import { toast } from 'react-toastify';
 
@@ -8,49 +8,38 @@ interface ITodo {
   completed: boolean;
 }
 
+
 const Home = () => {
+  //hook
   const [todos, setTodos] = useState<ITodo[]>([]);
 
-  const fetchTodo = useCallback(async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
-      if (res.ok) {
-        const data = await res.json();
-        setTodos(data);
-      }
-    } catch (e) {
-      console.error("fetchTodo error:", e);
-    }
+  useEffect(() => {
+    fetchTodo();
   }, []);
 
-  useEffect(() => {
-    let active = true;
-    const init = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
-        if (res.ok) {
-          const data = await res.json();
-          if (active) setTodos(data);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    init();
-    return () => {
-      active = false;
-    };
-  }, []);
+
+  const fetchTodo = async () => {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos`);
+    const data = await res.json();
+
+    setTodos(data)
+  }
 
   const deleteTodoById = (inputId: string | number) => {
     const newTodos = todos.filter(todo => todo.id !== inputId);
     setTodos(newTodos);
-    toast.success("Xóa todo thành công.");
-  };
+    toast.success("Xóa todo thành công.")
+  }
 
+  //update
   const handleCheckedTodo = async (id: string | number, isChecked: boolean) => {
-    try {
-      await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${id}`, {
+    // const newTodos = todos.map(todo =>
+    //   todo.id === id ? { ...todo, completed: isChecked } : todo
+    // );
+    // setTodos(newTodos);
+
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${id}`,
+      {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
@@ -58,34 +47,29 @@ const Home = () => {
         body: JSON.stringify({
           completed: isChecked
         })
-      });
-      await fetchTodo();
-    } catch (e) {
-      console.error(e);
-    }
-  };
+      }
+    );
+
+    await fetchTodo();
+  }
 
   const deleteCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed === true);
 
-    try {
-      await Promise.all(
-        completedTodos.map(todo =>
-          fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${todo.id}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json"
-            },
-          })
-        )
-      );
-      await fetchTodo();
-      toast.success("Đã xóa tất cả todos hoàn thành.");
-    } catch (e) {
-      console.error(e);
-      toast.error("Có lỗi xảy ra khi xóa.");
-    }
-  };
+    await Promise.all(
+      completedTodos.map(todo =>
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/todos/${todo.id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json"
+          },
+        })
+      )
+    );
+
+    await fetchTodo();
+    toast.success("Đã xóa tất cả todos hoàn thành.")
+  }
 
   return (
     <div>
@@ -98,9 +82,13 @@ const Home = () => {
         handleCheckedTodo={handleCheckedTodo}
         deleteCompleted={deleteCompleted}
         fetchTodo={fetchTodo}
+      // completed={false}
+      //key=value
       />
     </div>
-  );
-};
+
+
+  )
+}
 
 export default Home;

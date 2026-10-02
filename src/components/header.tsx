@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
 import "./header.css";
+
+//functions => return views (giao diện: html/css/js)
+//jsx
 
 const Header = () => {
   return (
@@ -9,12 +11,12 @@ const Header = () => {
         <span className="app-header-title">Todo App</span>
       </div>
       <nav className="app-header-nav">
-        <Link to="/">Trang chủ</Link>
+        <a href="#">Trang chủ</a>
         <a href="#">Công việc</a>
-        <Link to="/admin" style={{ color: "#0f8f6f", fontWeight: 600 }}>Quản trị (Admin)</Link>
+        <a href="#">Giới thiệu</a>
       </nav>
     </header>
   );
-};
+}
 
 export default Header;
