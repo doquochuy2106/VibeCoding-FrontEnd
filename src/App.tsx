@@ -1,27 +1,21 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Footer from "./components/footer"
 import Header from "./components/header"
-import Home from "./components/home"
 import AdminLayout from "./admin/layout/admin-layout"
 import DashboardPage from "./admin/pages/dashboard"
 import UsersPage from "./admin/pages/users"
 import ProductsPage from "./admin/pages/products"
 import SettingsPage from "./admin/pages/settings"
 import { ThemeProvider } from "./hooks/use-theme"
-import './global.css'
+import './global.css';
 
 function ClientLayout() {
   return (
-    <div className="hoidanit min-h-screen flex flex-col justify-between">
-      <div>
-        <Header />
-        <div className="text-center my-6">
-          <h1 className="text-3xl font-bold underline text-primary">
-            Hello world! with tailwind
-          </h1>
-        </div>
-        <Home />
-      </div>
+    <div className="hoidanit">
+      <h1 className="text-3xl font-bold underline">
+        Hello world! with tailwind
+      </h1>
+      <Header />
       <Footer />
     </div>
   )
