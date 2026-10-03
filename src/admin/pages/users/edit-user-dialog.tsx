@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { PencilIcon } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "react-toastify"
 
 import { Button } from "@/components/ui/button"
@@ -15,13 +15,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { usersService } from "@/services/users.service"
 import { ApiError } from "@/lib/http-client"
-import type { User } from "./columns"
+import { roleLabel, type User } from "./columns"
 
 type EditUserFormValues = {
   name: string
   phone: string
+  role: User["role"]
 }
 
 export function EditUserDialog({
@@ -36,18 +44,26 @@ export function EditUserDialog({
   const defaultValues: EditUserFormValues = {
     name: user.name ?? "",
     phone: user.phone ?? "",
+    role: user.role,
   }
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<EditUserFormValues>({ defaultValues })
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next)
-    if (next) reset(defaultValues)
+    if (next) {
+      reset({
+        name: user.name ?? "",
+        phone: user.phone ?? "",
+        role: user.role,
+      })
+    }
   }
 
   const onSubmit = async (data: EditUserFormValues) => {
@@ -123,6 +139,38 @@ export function EditUserDialog({
               />
               {errors.phone && (
                 <p className="text-sm text-destructive">{errors.phone.message}</p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="edit-user-role" className="text-sm font-medium">
+                Vai trò
+              </label>
+              <Controller
+                control={control}
+                name="role"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) => {
+                      if (val) field.onChange(val)
+                    }}
+                  >
+                    <SelectTrigger id="edit-user-role" className="w-full">
+                      <SelectValue placeholder="Chọn vai trò" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(roleLabel).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.role && (
+                <p className="text-sm text-destructive">{errors.role.message}</p>
               )}
             </div>
           </div>

@@ -7,15 +7,27 @@ export interface CreateUserPayload {
   password: string
   name: string
   phone: string
+  role?: "ADMIN" | "CUSTOMER"
 }
 
 export interface UpdateUserPayload {
   name: string
   phone: string
+  role?: "ADMIN" | "CUSTOMER"
+}
+
+export interface ListUsersParams
+  extends Record<string, string | number | boolean | undefined> {
+  page?: number
+  limit?: number
+  search?: string
+  role?: string
+  sortBy?: string
+  sortOrder?: "asc" | "desc"
 }
 
 export const usersService = {
-  list: (params: { page: number; limit: number }, signal?: AbortSignal) =>
+  list: (params: ListUsersParams, signal?: AbortSignal) =>
     apiClient.get<PaginatedResponse<User>>("/users", { params, signal }),
   create: (payload: CreateUserPayload, signal?: AbortSignal) =>
     apiClient.post<User>("/users", payload, { signal }),

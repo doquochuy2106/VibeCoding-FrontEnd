@@ -1,5 +1,5 @@
 import type * as React from "react"
-import type { Column, RowData } from "@tanstack/react-table"
+import type { Column, RowData, SortingState } from "@tanstack/react-table"
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -22,7 +22,16 @@ export function DataTableColumnHeader<TData extends RowData>({
     return <div className={cn(className)}>{title}</div>
   }
 
-  const sorted = column.getIsSorted()
+  // Đọc trạng thái sắp xếp trực tiếp từ controlled state nếu có, đảm bảo đồng bộ 100% với React state
+  const sortingState = (
+    column.table.options.state as { sorting?: SortingState } | undefined
+  )?.sorting
+  const currentSort = sortingState?.find((s) => s.id === column.id)
+  const sorted: false | "asc" | "desc" = currentSort
+    ? currentSort.desc
+      ? "desc"
+      : "asc"
+    : column.getIsSorted()
 
   return (
     <Button

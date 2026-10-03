@@ -19,7 +19,22 @@ import { useUsers } from "./use-users"
 import { CreateUserDialog } from "./create-user-dialog"
 
 export default function UsersPage() {
-  const { users, total, pageCount, pagination, setPagination, loading, refetch, deleteUser } = useUsers()
+  const {
+    users,
+    total,
+    pageCount,
+    pagination,
+    setPagination,
+    sorting,
+    setSorting,
+    role,
+    setRole,
+    search,
+    setSearch,
+    loading,
+    refetch,
+    deleteUser,
+  } = useUsers()
   const columns = useMemo(
     () => createUserColumns({ onDelete: deleteUser, onEditSuccess: refetch }),
     [deleteUser, refetch]
@@ -43,17 +58,15 @@ export default function UsersPage() {
             loading={loading}
             pagination={pagination}
             onPaginationChange={setPagination}
+            sorting={sorting}
+            onSortingChange={setSorting}
             pageCount={pageCount}
             rowCount={total}
-            searchColumnId="name"
+            searchValue={search}
+            onSearchChange={setSearch}
             searchPlaceholder="Tìm theo tên hoặc email..."
-            filters={(table) => (
-              <Select
-                value={(table.getColumn("role")?.getFilterValue() as string) ?? "all"}
-                onValueChange={(value) =>
-                  table.getColumn("role")?.setFilterValue(value === "all" ? undefined : value)
-                }
-              >
+            filters={() => (
+              <Select value={role} onValueChange={setRole}>
                 <SelectTrigger size="sm" className="w-[160px]">
                   <SelectValue placeholder="Vai trò" />
                 </SelectTrigger>

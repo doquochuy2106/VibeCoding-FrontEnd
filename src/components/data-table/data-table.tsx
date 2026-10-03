@@ -31,6 +31,9 @@ interface DataTableProps<TData extends RowData> {
   /** Column id to drive the free-text search box in the toolbar. */
   searchColumnId?: string
   searchPlaceholder?: string
+  /** Controlled search value and change callback for server-side search */
+  searchValue?: string
+  onSearchChange?: (value: string) => void
   /** Extra filter controls (selects, facets, ...) rendered next to the search box. */
   filters?: (table: ReactTable<DataTableFeatures, TData>) => React.ReactNode
   enableRowSelection?: boolean
@@ -48,6 +51,9 @@ interface DataTableProps<TData extends RowData> {
   onPaginationChange?: OnChangeFn<PaginationState>
   pageCount?: number
   rowCount?: number
+  /** Controlled sorting state and change callback for server-side sorting */
+  sorting?: SortingState
+  onSortingChange?: OnChangeFn<SortingState>
 }
 
 export function DataTable<TData extends RowData>({
@@ -55,6 +61,8 @@ export function DataTable<TData extends RowData>({
   data,
   searchColumnId,
   searchPlaceholder = "Tìm kiếm...",
+  searchValue,
+  onSearchChange,
   filters,
   enableRowSelection = false,
   pageSize = 10,
@@ -66,8 +74,14 @@ export function DataTable<TData extends RowData>({
   onPaginationChange,
   pageCount,
   rowCount,
+  sorting,
+  onSortingChange,
 }: DataTableProps<TData>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
+  const isSortingControlled = sorting !== undefined
+  const activeSorting = isSortingControlled ? sorting : internalSorting
+  const handleSortingChange = isSortingControlled ? onSortingChange : setInternalSorting
+
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<ColumnVisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
@@ -86,7 +100,7 @@ export function DataTable<TData extends RowData>({
     manualPagination,
     pageCount: manualPagination ? pageCount : undefined,
     rowCount: manualPagination ? rowCount : undefined,
-    onSortingChange: setSorting,
+    onSortingChange: handleSortingChange,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
@@ -95,7 +109,7 @@ export function DataTable<TData extends RowData>({
       pagination: { pageSize, pageIndex: 0 },
     },
     state: {
-      sorting,
+      sorting: activeSorting,
       columnFilters,
       columnVisibility,
       rowSelection,
@@ -107,16 +121,23 @@ export function DataTable<TData extends RowData>({
 
   return (
     <div className="flex flex-col gap-4">
-      {(searchColumn || filters) && (
+      {(searchColumn || onSearchChange || filters) && (
         <div className="flex flex-wrap items-center gap-2">
-          {searchColumn && (
+          {onSearchChange ? (
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue ?? ""}
+              onChange={(event) => onSearchChange(event.target.value)}
+              className="h-8 max-w-sm"
+            />
+          ) : searchColumn ? (
             <Input
               placeholder={searchPlaceholder}
               value={(searchColumn.getFilterValue() as string) ?? ""}
               onChange={(event) => searchColumn.setFilterValue(event.target.value)}
               className="h-8 max-w-sm"
             />
-          )}
+          ) : null}
           {filters?.(table)}
           <DataTableViewOptions table={table} />
         </div>
