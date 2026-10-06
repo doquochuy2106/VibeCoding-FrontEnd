@@ -40,10 +40,13 @@ async function extractErrorMessage(res: Response, method: string, path: string):
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { params, body, headers, ...rest } = options
 
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null
+
   const res = await fetch(buildUrl(path, params), {
     ...rest,
     headers: {
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
