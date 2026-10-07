@@ -8,6 +8,13 @@ export interface LoginPayload {
 export interface LoginResponse {
   username: string
   access_token: string
+  refresh_token?: string
+}
+
+export interface RefreshTokenResponse {
+  username?: string
+  access_token: string
+  refresh_token: string
 }
 
 export interface RegisterPayload {
@@ -33,4 +40,18 @@ export const authService = {
 
   register: (payload: RegisterPayload, signal?: AbortSignal) =>
     apiClient.post<RegisterResponse>("/auth/register", payload, { signal }),
+
+  refresh: (refreshToken?: string, signal?: AbortSignal) =>
+    apiClient.post<RefreshTokenResponse>(
+      "/auth/refresh",
+      refreshToken ? { refreshToken } : {},
+      { signal },
+    ),
+
+  logout: (refreshToken?: string, signal?: AbortSignal) =>
+    apiClient.post<{ message: string }>(
+      "/auth/logout",
+      refreshToken ? { refreshToken } : {},
+      { signal },
+    ),
 }
