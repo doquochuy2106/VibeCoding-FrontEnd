@@ -122,12 +122,14 @@ export default function HomePage() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </a>
-                <Link to="/admin">
-                  <Button variant="secondary" size="lg" className="gap-2 font-semibold">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
-                    <span>Trang quản trị (Admin)</span>
-                  </Button>
-                </Link>
+                {user.role?.toUpperCase() === "ADMIN" && (
+                  <Link to="/admin">
+                    <Button variant="secondary" size="lg" className="gap-2 font-semibold">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      <span>Trang quản trị (Admin)</span>
+                    </Button>
+                  </Link>
+                )}
               </>
             ) : (
               <>
@@ -135,12 +137,6 @@ export default function HomePage() {
                   <Button size="lg" className="gap-2 shadow-lg shadow-primary/25 font-semibold">
                     <span>Đăng nhập ngay</span>
                     <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to="/admin">
-                  <Button variant="secondary" size="lg" className="gap-2 font-semibold">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
-                    <span>Trang quản trị (Admin)</span>
                   </Button>
                 </Link>
               </>

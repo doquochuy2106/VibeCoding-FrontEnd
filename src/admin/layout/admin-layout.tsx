@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from "react-router-dom"
+import { Outlet, NavLink, useLocation, Link, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   Users,
@@ -6,6 +6,8 @@ import {
   Settings,
   Bell,
   Search,
+  LogOut,
+  Home,
 } from "lucide-react"
 import {
   Sidebar,
@@ -26,6 +28,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/hooks/use-auth"
+import { toast } from "react-toastify"
 
 const navItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
@@ -36,6 +40,16 @@ const navItems = [
 
 export default function AdminLayout() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    toast.info("Đã đăng xuất tài khoản.")
+    navigate("/login")
+  }
+
+  const avatarText = user?.username ? user.username.slice(0, 2).toUpperCase() : "AD"
 
   return (
     <SidebarProvider>
@@ -46,7 +60,7 @@ export default function AdminLayout() {
               {"›_"}
             </div>
             <span className="truncate font-display text-sm font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-              Hỏi Dân IT
+              VibeCoding
               <span className="text-sidebar-primary"> Admin</span>
             </span>
           </div>
@@ -82,41 +96,69 @@ export default function AdminLayout() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-2 overflow-hidden px-2 py-1.5">
-            <Avatar className="h-8 w-8 shrink-0">
-              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
-                AD
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex min-w-0 flex-col text-sm group-data-[collapsible=icon]:hidden">
-              <span className="truncate font-medium leading-none text-sidebar-foreground">
-                Admin
-              </span>
-              <span className="truncate text-xs text-sidebar-foreground/60">
-                admin@hoidanit.vn
-              </span>
+          <div className="flex items-center justify-between overflow-hidden px-2 py-1.5">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground font-semibold text-xs">
+                  {avatarText}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex min-w-0 flex-col text-sm group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-medium leading-none text-sidebar-foreground">
+                  {user?.username || "Admin"}
+                </span>
+                <span className="truncate text-xs text-sidebar-foreground/60">
+                  {user?.role || "ADMIN"}
+                </span>
+              </div>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive hover:bg-destructive/10 group-data-[collapsible=icon]:hidden"
+              onClick={handleLogout}
+              title="Đăng xuất"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </SidebarFooter>
       </Sidebar>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex h-14 items-center gap-3 border-b bg-card px-4">
+      <div className="flex flex-1 flex-col min-w-0">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-card/80 backdrop-blur-md px-4 shadow-2xs">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-6" />
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Tìm kiếm..." className="pl-8" />
           </div>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex items-center gap-2">
+            <Link to="/home">
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+                <Home className="h-4 w-4" />
+                <span className="hidden sm:inline">Về Trang chủ</span>
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" aria-label="Thông báo">
               <Bell className="h-4 w-4 text-muted-foreground" />
             </Button>
             <ThemeToggle />
             <Separator orientation="vertical" className="mx-1 h-6" />
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>AD</AvatarFallback>
-            </Avatar>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="text-xs font-semibold">{avatarText}</AvatarFallback>
+              </Avatar>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 text-xs text-destructive hover:bg-destructive/10"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Đăng xuất</span>
+              </Button>
+            </div>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">

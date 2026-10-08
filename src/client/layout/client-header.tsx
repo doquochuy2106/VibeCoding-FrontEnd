@@ -132,17 +132,19 @@ export default function ClientHeader() {
 
         {/* Right Action Controls */}
         <div className="flex items-center gap-2">
-          {/* Quick link to Admin page */}
-          <Link to="/admin" className="hidden sm:inline-flex">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>Admin Panel</span>
-            </Button>
-          </Link>
+          {/* Quick link to Admin page (Only for ADMIN role) */}
+          {user?.role?.toUpperCase() === "ADMIN" && (
+            <Link to="/admin" className="hidden sm:inline-flex">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                <span>Admin Panel</span>
+              </Button>
+            </Link>
+          )}
 
           {/* Theme Toggle - User requirement to switch dark/light */}
           <div className="flex items-center border-l border-border/70 pl-2">
@@ -188,14 +190,16 @@ export default function ClientHeader() {
                         <span>Trang chủ</span>
                       </Link>
 
-                      <Link
-                        to="/admin"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      >
-                        <ShieldCheck className="h-4 w-4 text-primary" />
-                        <span>Trang quản trị (Admin)</span>
-                      </Link>
+                      {user.role?.toUpperCase() === "ADMIN" && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        >
+                          <ShieldCheck className="h-4 w-4 text-primary" />
+                          <span>Trang quản trị (Admin)</span>
+                        </Link>
+                      )}
                     </div>
 
                     <div className="my-1 border-t border-border/70" />
@@ -279,14 +283,16 @@ export default function ClientHeader() {
                 <span>{item.title}</span>
               </NavLink>
             ))}
-            <Link
-              to="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted"
-            >
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              <span>Khu vực Quản trị (Admin)</span>
-            </Link>
+            {user?.role?.toUpperCase() === "ADMIN" && (
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                <span>Khu vực Quản trị (Admin)</span>
+              </Link>
+            )}
           </nav>
 
           <div className="border-t border-border pt-3">

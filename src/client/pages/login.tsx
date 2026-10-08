@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import {
   Mail,
@@ -21,7 +21,7 @@ import { toast } from "react-toastify"
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated, user, isLoading: authLoading } = useAuth()
 
   // Form states
   const [account, setAccount] = useState("")
@@ -31,6 +31,18 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
+
+  // Tự động điều hướng nếu đã đăng nhập từ trước
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user) {
+      const userRole = (user.role || "CUSTOMER").toUpperCase()
+      if (userRole === "ADMIN") {
+        navigate("/admin", { replace: true })
+      } else {
+        navigate("/home", { replace: true })
+      }
+    }
+  }, [authLoading, isAuthenticated, user, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,8 +74,14 @@ export default function LoginPage() {
       setSuccessMessage(`Đăng nhập thành công! Xin chào ${res.username}`)
       toast.success(`Đăng nhập thành công! Chào mừng ${res.username}`)
 
+      // Kiểm tra role: CUSTOMER thì ở trang homepage, ADMIN thì ở trang admin
+      const userRole = (res.role || "CUSTOMER").toUpperCase()
       setTimeout(() => {
-        navigate("/home")
+        if (userRole === "ADMIN") {
+          navigate("/admin")
+        } else {
+          navigate("/home")
+        }
       }, 500)
     } catch (err: any) {
       let msg = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
@@ -80,9 +98,15 @@ export default function LoginPage() {
   }
 
   // Quick fill helper for demo
-  const handleQuickFill = () => {
+  const handleQuickFillCustomer = () => {
     setAccount("test_probe@example.com")
     setPassword("password123")
+    setErrorMessage("")
+  }
+
+  const handleQuickFillAdmin = () => {
+    setAccount("admin@gmail.com")
+    setPassword("123456")
     setErrorMessage("")
   }
 
@@ -226,14 +250,26 @@ export default function LoginPage() {
                   </span>
                 </label>
 
-                {/* Quick Demo Fill button */}
-                <button
-                  type="button"
-                  onClick={handleQuickFill}
-                  className="text-xs text-muted-foreground underline decoration-dotted hover:text-primary transition-colors"
-                >
-                  Điền tài khoản mẫu
-                </button>
+                {/* Quick Demo Fill buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleQuickFillCustomer}
+                    className="text-xs text-muted-foreground underline decoration-dotted hover:text-primary transition-colors"
+                    title="test_probe@example.com / password123"
+                  >
+                    Mẫu Customer
+                  </button>
+                  <span className="text-xs text-muted-foreground/60">•</span>
+                  <button
+                    type="button"
+                    onClick={handleQuickFillAdmin}
+                    className="text-xs text-muted-foreground underline decoration-dotted hover:text-primary transition-colors"
+                    title="admin@gmail.com / 123456"
+                  >
+                    Mẫu Admin
+                  </button>
+                </div>
               </div>
 
               {/* Submit Button */}

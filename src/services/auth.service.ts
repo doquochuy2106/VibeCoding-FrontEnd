@@ -7,12 +7,14 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   username: string
+  role?: string
   access_token: string
   refresh_token?: string
 }
 
 export interface RefreshTokenResponse {
   username?: string
+  role?: string
   access_token: string
   refresh_token: string
 }

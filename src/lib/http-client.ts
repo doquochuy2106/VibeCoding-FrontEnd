@@ -1,4 +1,6 @@
+import { toast } from "react-toastify"
 import { cookieUtils } from "./cookie"
+import type { RefreshTokenResponse } from "@/services/auth.service"
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -11,6 +13,43 @@ export const setMemoryToken = (token: string | null) => {
 
 export const getMemoryToken = () => {
   return memoryAccessToken
+}
+
+// Handler thông báo cho AuthProvider khi phiên làm việc hết hạn
+type AuthExpiredHandler = () => void
+let authExpiredHandler: AuthExpiredHandler | null = null
+
+export const setOnAuthExpired = (handler: AuthExpiredHandler | null) => {
+  authExpiredHandler = handler
+}
+
+let isHandlingAuthExpired = false
+
+export const triggerAuthExpired = () => {
+  setMemoryToken(null)
+  cookieUtils.remove("refreshToken")
+  localStorage.removeItem("user")
+  localStorage.removeItem("access_token")
+  localStorage.removeItem("accessToken")
+
+  if (isHandlingAuthExpired) return
+  isHandlingAuthExpired = true
+
+  toast.error("Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại!", {
+    toastId: "session-expired",
+  })
+
+  if (authExpiredHandler) {
+    authExpiredHandler()
+  } else if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+    setTimeout(() => {
+      window.location.replace("/login")
+    }, 200)
+  }
+
+  setTimeout(() => {
+    isHandlingAuthExpired = false
+  }, 1000)
 }
 
 export class ApiError extends Error {
@@ -52,9 +91,9 @@ async function extractErrorMessage(res: Response, method: string, path: string):
 }
 
 // Xử lý gọi refresh token (tránh gọi trùng lặp nhiều lần nếu nhiều request đồng thời)
-let refreshPromise: Promise<boolean> | null = null
+let refreshPromise: Promise<RefreshTokenResponse | null> | null = null
 
-export async function tryRefreshToken(): Promise<boolean> {
+export async function tryRefreshToken(): Promise<RefreshTokenResponse | null> {
   if (refreshPromise) return refreshPromise
 
   refreshPromise = (async () => {
@@ -68,22 +107,28 @@ export async function tryRefreshToken(): Promise<boolean> {
       })
 
       if (!res.ok) {
-        setMemoryToken(null)
-        cookieUtils.remove("refreshToken")
-        return false
+        if (res.status === 401) {
+          triggerAuthExpired()
+        } else {
+          setMemoryToken(null)
+          cookieUtils.remove("refreshToken")
+        }
+        return null
       }
 
-      const data = await res.json()
+      const data: RefreshTokenResponse = await res.json()
       if (data.access_token) {
         setMemoryToken(data.access_token)
         if (data.refresh_token) {
           cookieUtils.set("refreshToken", data.refresh_token, 7)
         }
-        return true
+        return data
       }
-      return false
+
+      triggerAuthExpired()
+      return null
     } catch {
-      return false
+      return null
     } finally {
       refreshPromise = null
     }
@@ -123,6 +168,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (!res.ok) {
+    if (res.status === 401 && path !== "/auth/login") {
+      triggerAuthExpired()
+    }
     throw new ApiError(res.status, await extractErrorMessage(res, options.method ?? "GET", path))
   }
 
