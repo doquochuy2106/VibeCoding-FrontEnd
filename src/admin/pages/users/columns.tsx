@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Trash2Icon } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PopConfirm } from "@/components/ui/pop-confirm";
@@ -9,13 +10,16 @@ import {
   DataTableColumnHeader,
   type DataTableFeatures,
 } from "@/components/data-table";
+import { ImageModal } from "@/components/ui/image-modal";
 import { EditUserDialog } from "./edit-user-dialog";
+import { getAssetUrl } from "@/lib/utils";
 
 export interface User {
   id: number;
   email: string;
   name: string | null;
   phone: string | null;
+  avatar?: string | null;
   role: "ADMIN" | "CUSTOMER";
   createdAt: string;
   updatedAt: string;
@@ -39,6 +43,48 @@ function initials(name: string | null) {
     .map((n) => n[0])
     .join("")
     .toUpperCase();
+}
+
+function UserAvatarCell({ user }: { user: User }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <Avatar
+          className={`h-8 w-8 ${
+            user.avatar ? "cursor-pointer hover:ring-2 hover:ring-primary/40 transition-all" : ""
+          }`}
+          onClick={(e) => {
+            if (user.avatar) {
+              e.stopPropagation();
+              setOpen(true);
+            }
+          }}
+          title={user.avatar ? "Nhấn để xem avatar" : undefined}
+        >
+          {user.avatar && (
+            <AvatarImage
+              src={getAssetUrl(user.avatar)}
+              alt={user.name ?? ""}
+            />
+          )}
+          <AvatarFallback>{initials(user.name)}</AvatarFallback>
+        </Avatar>
+        <span className="font-medium">
+          {user.name ?? "(Chưa đặt tên)"}
+        </span>
+      </div>
+
+      {user.avatar && (
+        <ImageModal
+          open={open}
+          onClose={() => setOpen(false)}
+          src={user.avatar}
+          title={`Ảnh đại diện: ${user.name ?? `#${user.id}`}`}
+        />
+      )}
+    </>
+  );
 }
 
 const columnHelper = createColumnHelper<DataTableFeatures, User>();
@@ -94,19 +140,7 @@ export function createUserColumns({
       ),
       sortFn: "text",
       meta: { label: "Người dùng" },
-      cell: ({ row }) => {
-        const user = row.original;
-        return (
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>{initials(user.name)}</AvatarFallback>
-            </Avatar>
-            <span className="font-medium">
-              {user.name ?? "(Chưa đặt tên)"}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ row }) => <UserAvatarCell user={row.original} />,
     }),
     columnHelper.accessor("email", {
       id: "email",

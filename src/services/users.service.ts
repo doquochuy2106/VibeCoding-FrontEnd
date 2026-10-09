@@ -7,12 +7,14 @@ export interface CreateUserPayload {
   password: string
   name: string
   phone: string
+  avatar?: string
   role?: "ADMIN" | "CUSTOMER"
 }
 
 export interface UpdateUserPayload {
   name: string
   phone: string
+  avatar?: string
   role?: "ADMIN" | "CUSTOMER"
 }
 

@@ -142,16 +142,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   // Lấy access_token trực tiếp từ memory
   const token = memoryAccessToken
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData
 
   const res = await fetch(buildUrl(path, params), {
     ...rest,
     credentials: "include", // Luôn gửi kèm cookie
     headers: {
-      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...(!isFormData && body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : (body !== undefined ? JSON.stringify(body) : undefined),
   })
 
   // Nếu bị 401 Unauthorized và chưa retry, tự động thử refresh token
