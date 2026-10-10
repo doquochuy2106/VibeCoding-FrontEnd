@@ -17,11 +17,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { AuthCardSkeleton } from "@/components/ui/skeleton"
+import { useAuth } from "@/hooks/use-auth"
 import { authService } from "@/services/auth.service"
 import { toast } from "react-toastify"
+import gengLogo from "@/assets/geng-logo.png"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const { isLoading: authLoading } = useAuth()
 
   // Form states
   const [fullName, setFullName] = useState("")
@@ -47,7 +51,7 @@ export default function RegisterPage() {
     const hasSpecial = /[^a-zA-Z0-9]/.test(pass)
 
     if (pass.length >= 8 && hasNumber && hasLetter && hasSpecial) {
-      return { score: 3, text: "Mạnh", color: "text-emerald-500" }
+      return { score: 3, text: "Mạnh", color: "text-primary" }
     }
     if (pass.length >= 6 && hasNumber && hasLetter) {
       return { score: 2, text: "Trung bình", color: "text-amber-500" }
@@ -142,26 +146,37 @@ export default function RegisterPage() {
     }
   }
 
+  if (authLoading || isLoading) {
+    return <AuthCardSkeleton fields={5} />
+  }
+
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       {/* Subtle Background Glows */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
-        <div className="h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+        <div className="h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
         <div className="h-72 w-72 -translate-x-32 translate-y-32 rounded-full bg-accent/25 blur-2xl" />
       </div>
 
       <div className="w-full max-w-lg space-y-6">
         {/* Header Greeting */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <div className="text-center space-y-2.5">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-primary/40 bg-[#09090b] shadow-lg shadow-primary/20">
+            <img
+              src={gengLogo}
+              alt="Gen.G Logo"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Gia nhập VibeCoding</span>
+            <span>Gia nhập GEN.G Tiger Nation</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Tạo tài khoản mới
           </h1>
           <p className="text-sm text-muted-foreground">
-            Bắt đầu hành trình học tập, thực hành và kết nối cùng cộng đồng lập trình
+            Nhận ngay ưu đãi thành viên và khám phá bộ sưu tập GEN.G chính hãng
           </p>
         </div>
 

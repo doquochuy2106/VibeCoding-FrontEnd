@@ -6,57 +6,48 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DataTable } from "@/components/data-table"
-import { createProductColumns } from "./columns"
-import { useProducts } from "./use-products"
-import { CreateProductDialog } from "./create-product-dialog"
+import { createCategoryColumns } from "./columns"
+import { useCategories } from "./use-categories"
+import { CreateCategoryDialog } from "./create-category-dialog"
 
-export default function ProductsPage() {
+export default function CategoriesPage() {
   const {
-    products,
+    categories,
     total,
     pageCount,
     pagination,
     setPagination,
     sorting,
     setSorting,
-    isActive,
-    setIsActive,
     search,
     setSearch,
     loading,
     refetch,
-    deleteProduct,
-  } = useProducts()
+    deleteCategory,
+  } = useCategories()
 
   const columns = useMemo(
     () =>
-      createProductColumns({
-        onDelete: deleteProduct,
+      createCategoryColumns({
+        onDelete: deleteCategory,
         onEditSuccess: refetch,
       }),
-    [deleteProduct, refetch]
+    [deleteCategory, refetch]
   )
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Sản phẩm</h1>
-        <CreateProductDialog onSuccess={refetch} />
+        <h1 className="text-2xl font-bold">Danh mục sản phẩm</h1>
+        <CreateCategoryDialog onSuccess={refetch} />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <span>Danh sách sản phẩm</span>
+            <span>Danh sách danh mục</span>
             {loading ? (
               <Skeleton className="h-5 w-10 rounded-md" />
             ) : (
@@ -69,7 +60,7 @@ export default function ProductsPage() {
         <CardContent>
           <DataTable
             columns={columns}
-            data={products}
+            data={categories}
             loading={loading}
             pagination={pagination}
             onPaginationChange={setPagination}
@@ -79,20 +70,8 @@ export default function ProductsPage() {
             rowCount={total}
             searchValue={search}
             onSearchChange={setSearch}
-            searchPlaceholder="Tìm theo tên sản phẩm, slug..."
-            filters={() => (
-              <Select value={isActive} onValueChange={setIsActive}>
-                <SelectTrigger size="sm" className="w-[180px]">
-                  <SelectValue placeholder="Trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="true">Đang kinh doanh</SelectItem>
-                  <SelectItem value="false">Tạm ẩn (Ngừng bán)</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-            emptyMessage="Không có sản phẩm nào"
+            searchPlaceholder="Tìm theo tên danh mục, slug, mô tả..."
+            emptyMessage="Không có danh mục nào"
           />
         </CardContent>
       </Card>

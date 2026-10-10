@@ -139,6 +139,33 @@ export function createProductColumns({
         )
       },
     }),
+    columnHelper.display({
+      id: "category",
+      header: "Danh mục",
+      meta: { label: "Danh mục" },
+      cell: ({ row }) => {
+        const category = row.original.category
+        return category ? (
+          <Badge variant="outline" className="gap-1.5 pl-1.5 pr-2.5 py-0.5 font-normal">
+            {category.imageUrl && (
+              <img
+                src={getAssetUrl(category.imageUrl)}
+                alt={category.name}
+                className="h-4 w-4 rounded-full object-cover shrink-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"
+                }}
+              />
+            )}
+            <span>{category.name}</span>
+          </Badge>
+        ) : (
+          <span className="text-xs italic text-muted-foreground">
+            Chưa phân loại
+          </span>
+        )
+      },
+    }),
     columnHelper.accessor("price", {
       id: "price",
       header: ({ column }) => (

@@ -5,46 +5,46 @@
 :root {
   --radius: 0.5rem;
 
-  /* Paper: cool light canvas, not cream — keeps a technical, editor-like feel */
-  --background: #f5f6fa;
-  --foreground: #12172b;
+  /* Gen.G Light Theme: Warm Alabaster Canvas + Championship Gold & Obsidian Black */
+  --background: #faf8f3;
+  --foreground: #111113;
 
   --card: #ffffff;
-  --card-foreground: #12172b;
+  --card-foreground: #111113;
   --popover: #ffffff;
-  --popover-foreground: #12172b;
+  --popover-foreground: #111113;
 
-  /* Emerald: the brand accent — reads as "compiled / all good", not a generic SaaS blue */
-  --primary: #0f8f6f;
+  /* Gen.G Royal Gold */
+  --primary: #b88917;
   --primary-foreground: #ffffff;
 
-  --secondary: #edeff5;
-  --secondary-foreground: #12172b;
-  --muted: #edeff5;
-  --muted-foreground: #656d84;
+  --secondary: #f2ede0;
+  --secondary-foreground: #161512;
+  --muted: #f2ede0;
+  --muted-foreground: #6e6756;
 
-  --accent: #e5f4ee;
-  --accent-foreground: #0f8f6f;
+  --accent: #f9f1d8;
+  --accent-foreground: #8f6705;
 
   --destructive: #e5484d;
   --destructive-foreground: #ffffff;
 
-  --success: #0f8f6f;
-  --warning: #b7791f;
+  --success: #b88917;
+  --warning: #d97706;
 
-  --border: #e2e4ee;
-  --input: #e2e4ee;
-  --ring: #0f8f6f;
+  --border: #e5dec9;
+  --input: #e5dec9;
+  --ring: #c59b27;
 
-  /* Sidebar stays a fixed "console" panel in both themes — the page's signature element */
-  --sidebar: #10142a;
-  --sidebar-foreground: #c8cee0;
-  --sidebar-primary: #1fd1a5;
-  --sidebar-primary-foreground: #0b1020;
-  --sidebar-accent: #1a2044;
-  --sidebar-accent-foreground: #f3f5fa;
-  --sidebar-border: #232a4d;
-  --sidebar-ring: #1fd1a5;
+  /* Sidebar: Signature Gen.G Obsidian & Gold Console */
+  --sidebar: #0c0c0e;
+  --sidebar-foreground: #dcd7c9;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1c1912;
+  --sidebar-accent-foreground: #faf6eb;
+  --sidebar-border: #282318;
+  --sidebar-ring: #d4af37;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Be Vietnam Pro", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -52,43 +52,45 @@
 }
 
 .dark {
-  --background: #0b0e1c;
-  --foreground: #e6e8f2;
+  /* Gen.G Dark Theme: Deep Obsidian Black + Metallic Championship Gold */
+  --background: #09090b;
+  --foreground: #f5f2eb;
 
-  --card: #131730;
-  --card-foreground: #e6e8f2;
-  --popover: #131730;
-  --popover-foreground: #e6e8f2;
+  --card: #121215;
+  --card-foreground: #f5f2eb;
+  --popover: #141418;
+  --popover-foreground: #f5f2eb;
 
-  --primary: #1fd1a5;
-  --primary-foreground: #06140f;
+  /* Signature Gen.G Gold (#D4AF37 / #E2B83E) */
+  --primary: #d4af37;
+  --primary-foreground: #09090b;
 
-  --secondary: #1c2140;
-  --secondary-foreground: #e6e8f2;
-  --muted: #1a1f3a;
-  --muted-foreground: #8b92ad;
+  --secondary: #1d1c21;
+  --secondary-foreground: #f5f2eb;
+  --muted: #18171c;
+  --muted-foreground: #9e9786;
 
-  --accent: #1c2b40;
-  --accent-foreground: #4fe3bd;
+  --accent: #262011;
+  --accent-foreground: #f4ce58;
 
   --destructive: #ff6b6b;
   --destructive-foreground: #1a0505;
 
-  --success: #1fd1a5;
-  --warning: #e8b04b;
+  --success: #d4af37;
+  --warning: #f59e0b;
 
-  --border: #242a4a;
-  --input: #242a4a;
-  --ring: #1fd1a5;
+  --border: #2b2619;
+  --input: #2b2619;
+  --ring: #d4af37;
 
-  --sidebar: #0a0d1a;
-  --sidebar-foreground: #c8cee0;
-  --sidebar-primary: #1fd1a5;
-  --sidebar-primary-foreground: #0b1020;
-  --sidebar-accent: #171c38;
-  --sidebar-accent-foreground: #f3f5fa;
-  --sidebar-border: #1e2444;
-  --sidebar-ring: #1fd1a5;
+  --sidebar: #070709;
+  --sidebar-foreground: #dcd7c9;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1a1710;
+  --sidebar-accent-foreground: #faf6eb;
+  --sidebar-border: #262116;
+  --sidebar-ring: #d4af37;
 }
 
 @theme inline {
@@ -151,7 +153,7 @@
   }
 
   ::selection {
-    background: color-mix(in oklch, var(--primary), transparent 75%);
+    background: color-mix(in oklch, var(--primary), transparent 70%);
   }
 }
 

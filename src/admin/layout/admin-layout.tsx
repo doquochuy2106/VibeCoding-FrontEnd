@@ -2,6 +2,7 @@ import { Outlet, NavLink, useLocation, Link, useNavigate } from "react-router-do
 import {
   LayoutDashboard,
   Users,
+  FolderTree,
   Package,
   Settings,
   Bell,
@@ -30,10 +31,12 @@ import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "react-toastify"
+import gengLogo from "@/assets/geng-logo.png"
 
 const navItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Người dùng", url: "/admin/users", icon: Users },
+  { title: "Danh mục", url: "/admin/categories", icon: FolderTree },
   { title: "Sản phẩm", url: "/admin/products", icon: Package },
   { title: "Cài đặt", url: "/admin/settings", icon: Settings },
 ]
@@ -55,12 +58,16 @@ export default function AdminLayout() {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-2 overflow-hidden px-2 py-1.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary font-mono text-sm font-semibold text-sidebar-primary-foreground">
-              {"›_"}
+          <div className="flex items-center gap-2.5 overflow-hidden px-2 py-1.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-sidebar-primary/40 bg-[#09090b]">
+              <img
+                src={gengLogo}
+                alt="Gen.G Logo"
+                className="h-full w-full object-cover"
+              />
             </div>
-            <span className="truncate font-display text-sm font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-              VibeCoding
+            <span className="truncate font-display text-sm font-extrabold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+              GEN.G
               <span className="text-sidebar-primary"> Admin</span>
             </span>
           </div>

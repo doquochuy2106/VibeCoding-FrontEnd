@@ -7,21 +7,19 @@ import RegisterPage from "./client/pages/register"
 import AdminLayout from "./admin/layout/admin-layout"
 import DashboardPage from "./admin/pages/dashboard"
 import UsersPage from "./admin/pages/users"
+import CategoriesPage from "./admin/pages/categories"
 import ProductsPage from "./admin/pages/products"
 import SettingsPage from "./admin/pages/settings"
 import { ThemeProvider } from "./hooks/use-theme"
 import { AuthProvider, useAuth } from "./hooks/use-auth"
+import { AdminLayoutSkeleton } from "./components/ui/skeleton"
 import "./global.css"
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, isLoading } = useAuth()
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+    return <AdminLayoutSkeleton />
   }
 
   if (!isAuthenticated) {
@@ -66,6 +64,7 @@ function App() {
             >
               <Route index element={<DashboardPage />} />
               <Route path="users" element={<UsersPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
               <Route path="products" element={<ProductsPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>

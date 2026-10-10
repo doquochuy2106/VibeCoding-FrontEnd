@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { DataTable } from "@/components/data-table"
 import { createUserColumns, roleLabel } from "./columns"
 import { useUsers } from "./use-users"
@@ -49,7 +50,16 @@ export default function UsersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách người dùng ({total})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <span>Danh sách người dùng</span>
+            {loading ? (
+              <Skeleton className="h-5 w-10 rounded-md" />
+            ) : (
+              <span className="text-muted-foreground font-mono text-sm">
+                ({total})
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable

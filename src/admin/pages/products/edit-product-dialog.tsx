@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   PencilIcon,
   UploadCloudIcon,
@@ -25,9 +25,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { ImageModal } from "@/components/ui/image-modal"
 import { productsService, type Product } from "@/services/products.service"
+import { categoriesService, type Category } from "@/services/categories.service"
 import { uploadService } from "@/services/upload.service"
 import { ApiError } from "@/lib/http-client"
 import { formatPriceInput } from "./create-product-dialog"
@@ -36,6 +44,7 @@ import { getAssetUrl } from "@/lib/utils"
 type EditProductFormValues = {
   name: string
   slug: string
+  categoryId: string
   price: number | string
   quantity: number
   imageUrl: string
@@ -51,6 +60,8 @@ export function EditProductDialog({
   onSuccess?: () => void
 }) {
   const [open, setOpen] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
@@ -59,6 +70,7 @@ export function EditProductDialog({
   const defaultValues: EditProductFormValues = {
     name: product.name,
     slug: product.slug,
+    categoryId: product.categoryId ? String(product.categoryId) : "",
     price: Number(product.price) || 0,
     quantity: product.quantity,
     imageUrl: product.imageUrl ?? "",
@@ -79,12 +91,37 @@ export function EditProductDialog({
   const currentImageUrl = watch("imageUrl")
   const currentStatus = watch("isActive")
 
+  useEffect(() => {
+    if (!open) return
+    let active = true
+    setLoadingCategories(true)
+    categoriesService
+      .list({ page: 1, limit: 100, sortBy: "name", sortOrder: "asc" })
+      .then((res) => {
+        if (active) {
+          setCategories(res.data ?? [])
+        }
+      })
+      .catch(() => {
+        if (active) {
+          toast.error("Không thể tải danh sách danh mục.")
+        }
+      })
+      .finally(() => {
+        if (active) setLoadingCategories(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [open])
+
   const handleOpenChange = (next: boolean) => {
     setOpen(next)
     if (next) {
       reset({
         name: product.name,
         slug: product.slug,
+        categoryId: product.categoryId ? String(product.categoryId) : "",
         price: Number(product.price) || 0,
         quantity: product.quantity,
         imageUrl: product.imageUrl ?? "",
@@ -158,6 +195,7 @@ export function EditProductDialog({
       await productsService.update(product.id, {
         name: data.name.trim(),
         slug: data.slug.trim() || undefined,
+        categoryId: data.categoryId ? Number(data.categoryId) : undefined,
         price: cleanPrice,
         quantity: Number(data.quantity) || 0,
         imageUrl: data.imageUrl.trim() || undefined,
@@ -381,6 +419,76 @@ export function EditProductDialog({
                 />
                 {errors.slug && (
                   <p className="text-xs text-destructive">{errors.slug.message}</p>
+                )}
+              </div>
+
+              {/* Danh mục sản phẩm */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="edit-product-category"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Danh mục sản phẩm <span className="text-destructive">*</span>
+                </label>
+                {loadingCategories ? (
+                  <div className="h-10 w-full animate-pulse rounded-lg bg-muted/80" />
+                ) : (
+                  <Controller
+                    control={control}
+                    name="categoryId"
+                    rules={{
+                      required: "Vui lòng chọn danh mục sản phẩm",
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value || ""}
+                        onValueChange={(val) => {
+                          field.onChange(val ?? "")
+                        }}
+                      >
+                        <SelectTrigger
+                          id="edit-product-category"
+                          aria-invalid={!!errors.categoryId}
+                          className="w-full h-10"
+                        >
+                          <SelectValue placeholder="Chọn danh mục sản phẩm">
+                            {(val: string | null) => {
+                              if (!val) {
+                                return (
+                                  <span className="text-muted-foreground">
+                                    -- Chọn danh mục sản phẩm --
+                                  </span>
+                                )
+                              }
+                              const found = categories.find(
+                                (c) => String(c.id) === String(val)
+                              )
+                              if (found) return found.name
+                              if (
+                                product.category &&
+                                String(product.category.id) === String(val)
+                              ) {
+                                return product.category.name
+                              }
+                              return `-- Chọn danh mục sản phẩm --`
+                            }}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={String(cat.id)}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                )}
+                {errors.categoryId && (
+                  <p className="text-xs text-destructive">
+                    {errors.categoryId.message}
+                  </p>
                 )}
               </div>
 

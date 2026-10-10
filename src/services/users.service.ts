@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/http-client"
 import type { PaginatedResponse } from "@/types/pagination"
 import type { User } from "@/admin/pages/users/columns"
 
+export type { User }
+
 export interface CreateUserPayload {
   email: string
   password: string

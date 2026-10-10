@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { features, type DataTableFeatures } from "./data-table-features"
 import { DataTableViewOptions } from "./data-table-view-options"
 import { DataTablePagination } from "./data-table-pagination"
@@ -68,7 +69,6 @@ export function DataTable<TData extends RowData>({
   pageSize = 10,
   pageSizeOptions,
   loading = false,
-  loadingMessage = "Đang tải...",
   emptyMessage = "Không có dữ liệu.",
   pagination,
   onPaginationChange,
@@ -118,6 +118,11 @@ export function DataTable<TData extends RowData>({
   })
 
   const searchColumn = searchColumnId ? table.getColumn(searchColumnId) : undefined
+  const visibleColumns = table.getVisibleLeafColumns()
+  const skeletonRowCount = Math.min(
+    (manualPagination ? pagination?.pageSize : internalPagination.pageSize) || 8,
+    10
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -160,11 +165,47 @@ export function DataTable<TData extends RowData>({
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  {loadingMessage}
-                </TableCell>
-              </TableRow>
+              Array.from({ length: skeletonRowCount }).map((_, rowIdx) => (
+                <TableRow key={`skeleton-row-${rowIdx}`}>
+                  {(visibleColumns.length > 0
+                    ? visibleColumns
+                    : columns.map((c, idx) => ({ id: c.id ?? String(idx) }))
+                  ).map((col, colIdx) => {
+                    const colId = String(col.id || "").toLowerCase()
+                    return (
+                      <TableCell key={`skeleton-cell-${rowIdx}-${colIdx}`}>
+                        {colId === "id" ? (
+                          <Skeleton className="h-4 w-9 rounded" />
+                        ) : colId === "name" ? (
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="h-10 w-10 shrink-0 rounded-md" />
+                            <div className="space-y-1.5">
+                              <Skeleton className="h-4 w-32 sm:w-40 rounded" />
+                              <Skeleton className="h-3 w-20 sm:w-24 rounded" />
+                            </div>
+                          </div>
+                        ) : colId === "actions" ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Skeleton className="h-8 w-8 rounded-md" />
+                            <Skeleton className="h-8 w-8 rounded-md" />
+                          </div>
+                        ) : colId.includes("role") ||
+                          colId.includes("active") ||
+                          colId.includes("count") ||
+                          colId.includes("category") ||
+                          colId.includes("status") ? (
+                          <Skeleton className="h-5 w-24 rounded-full" />
+                        ) : colId.includes("price") ||
+                          colId.includes("quantity") ? (
+                          <Skeleton className="h-4 w-20 rounded" />
+                        ) : (
+                          <Skeleton className="h-4 w-28 sm:w-36 rounded" />
+                        )}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              ))
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>

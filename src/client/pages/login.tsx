@@ -15,9 +15,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { AuthCardSkeleton } from "@/components/ui/skeleton"
 import { authService } from "@/services/auth.service"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "react-toastify"
+import gengLogo from "@/assets/geng-logo.png"
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -110,26 +112,37 @@ export default function LoginPage() {
     setErrorMessage("")
   }
 
+  if (authLoading || isLoading) {
+    return <AuthCardSkeleton fields={2} />
+  }
+
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       {/* Subtle Background Glows */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
-        <div className="h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+        <div className="h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
         <div className="h-64 w-64 translate-x-32 translate-y-24 rounded-full bg-accent/30 blur-2xl" />
       </div>
 
       <div className="w-full max-w-md space-y-6">
         {/* Header Greeting */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <div className="text-center space-y-2.5">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-primary/40 bg-[#09090b] shadow-lg shadow-primary/20">
+            <img
+              src={gengLogo}
+              alt="Gen.G Logo"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Chào mừng bạn trở lại</span>
+            <span>GEN.G Tiger Nation Store</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Đăng nhập vào tài khoản
           </h1>
           <p className="text-sm text-muted-foreground">
-            Nhập thông tin đăng nhập của bạn để tiếp tục học tập và làm việc
+            Nhập thông tin đăng nhập của bạn để mua sắm & quản lý đơn hàng
           </p>
         </div>
 

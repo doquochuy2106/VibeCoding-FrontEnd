@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/http-client"
 import type { PaginatedResponse } from "@/types/pagination"
+import type { Category } from "./categories.service"
 
 export interface Product {
   id: number
@@ -10,6 +11,8 @@ export interface Product {
   imageUrl: string | null
   quantity: number
   isActive: boolean
+  categoryId: number | null
+  category?: Category | null
   createdAt: string
   updatedAt: string
 }
@@ -22,6 +25,7 @@ export interface CreateProductPayload {
   imageUrl?: string
   quantity?: number
   isActive?: boolean
+  categoryId: number
 }
 
 export interface UpdateProductPayload {
@@ -32,6 +36,7 @@ export interface UpdateProductPayload {
   imageUrl?: string
   quantity?: number
   isActive?: boolean
+  categoryId?: number
 }
 
 export interface ListProductsParams
@@ -40,6 +45,7 @@ export interface ListProductsParams
   limit?: number
   search?: string
   isActive?: string
+  categoryId?: number
   minPrice?: number
   maxPrice?: number
   sortBy?: string

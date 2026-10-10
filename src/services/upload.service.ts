@@ -19,6 +19,15 @@ export const uploadService = {
   },
 
   /**
+   * Upload ảnh danh mục sản phẩm lên /upload/category
+   */
+  uploadCategoryImage: async (file: File) => {
+    const formData = new FormData()
+    formData.append("file", file)
+    return apiClient.post<UploadResponse>("/upload/category", formData)
+  },
+
+  /**
    * Upload avatar người dùng lên /upload/user
    */
   uploadUserAvatar: async (file: File) => {
