@@ -4,7 +4,7 @@ import {
   Users,
   Package,
   FolderTree,
-  TrendingUp,
+  ClipboardList,
   RefreshCw,
   ArrowUpRight,
 } from "lucide-react"
@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { usersService, type User } from "@/services/users.service"
 import { productsService, type Product } from "@/services/products.service"
 import { categoriesService } from "@/services/categories.service"
+import { ordersService } from "@/services/orders.service"
 import { getAssetUrl } from "@/lib/utils"
 
 function formatVND(amount: number | string): string {
@@ -43,22 +44,25 @@ export default function DashboardPage() {
   const [totalUsers, setTotalUsers] = useState(0)
   const [totalProducts, setTotalProducts] = useState(0)
   const [totalCategories, setTotalCategories] = useState(0)
+  const [totalOrders, setTotalOrders] = useState(0)
   const [recentProducts, setRecentProducts] = useState<Product[]>([])
   const [recentUsers, setRecentUsers] = useState<User[]>([])
 
   const fetchDashboardData = useCallback(async (signal?: AbortSignal) => {
     setLoading(true)
     try {
-      const [usersRes, productsRes, categoriesRes] = await Promise.all([
+      const [usersRes, productsRes, categoriesRes, ordersRes] = await Promise.all([
         usersService.list({ page: 1, limit: 5, sortBy: "id", sortOrder: "desc" }, signal),
         productsService.list({ page: 1, limit: 5, sortBy: "id", sortOrder: "desc" }, signal),
         categoriesService.list({ page: 1, limit: 5, sortBy: "id", sortOrder: "desc" }, signal),
+        ordersService.list({ page: 1, limit: 5, sortBy: "id", sortOrder: "desc" }, signal),
       ])
 
       if (!signal?.aborted) {
         setTotalUsers(usersRes.meta?.total ?? usersRes.data.length)
         setTotalProducts(productsRes.meta?.total ?? productsRes.data.length)
         setTotalCategories(categoriesRes.meta?.total ?? categoriesRes.data.length)
+        setTotalOrders(ordersRes.meta?.total ?? ordersRes.data.length)
         setRecentProducts(productsRes.data ?? [])
         setRecentUsers(usersRes.data ?? [])
       }
@@ -77,12 +81,14 @@ export default function DashboardPage() {
     return () => controller.abort()
   }, [fetchDashboardData])
 
-  const totalInventoryValue = recentProducts.reduce(
-    (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 0),
-    0
-  )
-
   const stats = [
+    {
+      title: "Tổng đơn hàng",
+      value: `${totalOrders} đơn hàng`,
+      sub: "Xem & quản lý trạng thái đơn",
+      icon: ClipboardList,
+      href: "/admin/orders",
+    },
     {
       title: "Tổng sản phẩm",
       value: `${totalProducts} sản phẩm`,
@@ -103,13 +109,6 @@ export default function DashboardPage() {
       sub: "Quản trị viên & Khách hàng",
       icon: Users,
       href: "/admin/users",
-    },
-    {
-      title: "Giá trị kho mẫu",
-      value: formatVND(totalInventoryValue || 125000000),
-      sub: "+14.8% tăng trưởng tháng này",
-      icon: TrendingUp,
-      href: "/admin/products",
     },
   ]
 

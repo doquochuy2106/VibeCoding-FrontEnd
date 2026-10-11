@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ShoppingBag,
   ShoppingCart,
@@ -20,8 +20,6 @@ import {
   FolderTree,
   Flame,
   Tag,
-  Plus,
-  Minus,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
@@ -54,13 +52,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import {
   Skeleton,
@@ -226,6 +217,8 @@ const SORT_OPTIONS: Array<{ value: string; label: string }> = [
 export default function HomePage() {
   const { user, isAuthenticated } = useAuth()
   const { addItem } = useCart()
+  const location = useLocation()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
   // Filter states
@@ -255,12 +248,23 @@ export default function HomePage() {
   const [totalPages, setTotalPages] = useState(1)
   const [loadingProducts, setLoadingProducts] = useState(true)
 
-  // Wishlist & QuickView state
+  // Wishlist state
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
-  const [quickViewQty, setQuickViewQty] = useState(1)
 
   const LIMIT = 4
+
+  // Smooth scroll when navigating to /home#categories or /home#products
+  useEffect(() => {
+    if (!location.hash) return
+    const targetId = location.hash.slice(1)
+    const timer = setTimeout(() => {
+      const element = document.getElementById(targetId)
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }, 60)
+    return () => clearTimeout(timer)
+  }, [location.hash])
 
   // Sync URL search param if changed from header search
   useEffect(() => {
@@ -443,8 +447,7 @@ export default function HomePage() {
 
   const openQuickView = (product: Product, e?: React.MouseEvent) => {
     e?.stopPropagation()
-    setQuickViewProduct(product)
-    setQuickViewQty(1)
+    navigate(`/products/${product.slug}`)
   }
 
   const serviceBadges = [
@@ -1536,140 +1539,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* 5. QUICK VIEW PRODUCT MODAL */}
-      <Dialog
-        open={!!quickViewProduct}
-        onOpenChange={(open) => {
-          if (!open) setQuickViewProduct(null)
-        }}
-      >
-        <DialogContent className="sm:max-w-3xl w-[94vw] max-h-[90vh] overflow-y-auto p-6">
-          {quickViewProduct && (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-12 items-start">
-              {/* Left Product Image */}
-              <div className="md:col-span-5 overflow-hidden rounded-2xl border border-border bg-muted/30 aspect-square flex items-center justify-center">
-                {quickViewProduct.imageUrl ? (
-                  <img
-                    src={getAssetUrl(quickViewProduct.imageUrl)}
-                    alt={quickViewProduct.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <ShoppingBag className="h-16 w-16 text-muted-foreground stroke-[1.2]" />
-                )}
-              </div>
-
-              {/* Right Product Details */}
-              <div className="md:col-span-7 flex flex-col gap-4">
-                <DialogHeader className="space-y-2 text-left">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="default" className="text-xs">
-                      {quickViewProduct.category?.name || "Chưa phân loại"}
-                    </Badge>
-                    {quickViewProduct.isActive &&
-                    quickViewProduct.quantity > 0 ? (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs text-primary font-semibold"
-                      >
-                        Còn hàng ({quickViewProduct.quantity} sản phẩm)
-                      </Badge>
-                    ) : (
-                      <Badge variant="destructive" className="text-xs">
-                        Hết hàng
-                      </Badge>
-                    )}
-                  </div>
-
-                  <DialogTitle className="text-xl font-bold text-foreground leading-snug">
-                    {quickViewProduct.name}
-                  </DialogTitle>
-                  <DialogDescription className="font-mono text-xs text-muted-foreground">
-                    Mã SP: #{quickViewProduct.id} • /{quickViewProduct.slug}
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="flex items-baseline gap-3 rounded-2xl bg-muted/50 p-4">
-                  <span className="text-2xl font-extrabold text-primary tabular-nums">
-                    {formatVND(quickViewProduct.price)}
-                  </span>
-                  <span className="text-sm text-muted-foreground line-through tabular-nums">
-                    {formatVND(
-                      Math.round((Number(quickViewProduct.price) * 1.18) / 1000) *
-                        1000
-                    )}
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Mô tả sản phẩm
-                  </h4>
-                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-                    {quickViewProduct.description ||
-                      "Sản phẩm chính hãng chất lượng cao, được tuyển chọn kỹ lưỡng tại VibeStore."}
-                  </p>
-                </div>
-
-                <Separator />
-
-                {/* Quantity & Add to Cart */}
-                {quickViewProduct.isActive && quickViewProduct.quantity > 0 ? (
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                    <div className="flex items-center border border-border rounded-xl bg-card w-fit">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setQuickViewQty((q) => Math.max(1, q - 1))
-                        }
-                        className="p-2.5 text-muted-foreground hover:text-foreground cursor-pointer"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="px-4 text-sm font-bold tabular-nums">
-                        {quickViewQty}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setQuickViewQty((q) =>
-                            Math.min(quickViewProduct.quantity, q + 1)
-                          )
-                        }
-                        className="p-2.5 text-muted-foreground hover:text-foreground cursor-pointer"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <Button
-                      size="lg"
-                      onClick={() => {
-                        handleAddToCart(quickViewProduct, quickViewQty)
-                        setQuickViewProduct(null)
-                      }}
-                      className="flex-1 gap-2 rounded-xl font-semibold shadow-md shadow-primary/20 cursor-pointer"
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      <span>
-                        Thêm vào giỏ •{" "}
-                        {formatVND(
-                          (Number(quickViewProduct.price) || 0) * quickViewQty
-                        )}
-                      </span>
-                    </Button>
-                  </div>
-                ) : (
-                  <Button disabled size="lg" variant="secondary" className="w-full rounded-xl">
-                    Sản phẩm hiện đang tạm hết hàng
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

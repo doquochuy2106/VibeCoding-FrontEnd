@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ShoppingBag,
   ShoppingCart,
@@ -15,18 +15,17 @@ import {
   Trash2,
   Plus,
   Minus,
+  ClipboardList,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Separator } from "@/components/ui/separator"
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/hooks/use-auth"
@@ -57,7 +56,7 @@ export default function ClientHeader() {
   )
 
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
-  const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } =
+  const { items, totalItems, totalPrice, updateQuantity, removeItem } =
     useCart()
 
   useEffect(() => {
@@ -96,6 +95,46 @@ export default function ClientHeader() {
     { title: "Khuyến mãi", href: "/home#products", icon: Flame },
   ]
 
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    setMobileMenuOpen(false)
+    const hashIndex = href.indexOf("#")
+    const targetPath =
+      hashIndex !== -1 ? href.slice(0, hashIndex) || "/home" : href
+    const targetHash = hashIndex !== -1 ? href.slice(hashIndex) : ""
+
+    const isOnHome =
+      location.pathname === "/home" || location.pathname === "/"
+
+    if (isOnHome && targetPath === "/home") {
+      e.preventDefault()
+      if (targetHash) {
+        const targetId = targetHash.slice(1)
+        const element = document.getElementById(targetId)
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+        window.history.replaceState(
+          null,
+          "",
+          `${location.pathname}${location.search}${targetHash}`
+        )
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+        window.history.replaceState(
+          null,
+          "",
+          `${location.pathname}${location.search}`
+        )
+      }
+    } else {
+      e.preventDefault()
+      navigate(href)
+    }
+  }
+
   const handleHeaderSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const nextParams = new URLSearchParams(searchParams)
@@ -106,6 +145,11 @@ export default function ClientHeader() {
     }
     navigate(`/home?${nextParams.toString()}#products`)
     setMobileMenuOpen(false)
+    setTimeout(() => {
+      document
+        .getElementById("products")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+    }, 50)
   }
 
   const handleLogout = () => {
@@ -125,6 +169,7 @@ export default function ClientHeader() {
         <div className="flex items-center gap-6">
           <Link
             to="/home"
+            onClick={(e) => handleNavClick(e, "/home")}
             className="group flex items-center gap-2.5 transition-opacity hover:opacity-90"
           >
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-primary/40 bg-[#09090b] shadow-sm shadow-primary/20 transition-transform group-hover:scale-105">
@@ -155,6 +200,7 @@ export default function ClientHeader() {
                 <a
                   key={item.title}
                   href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                     isHomeActive
                       ? "bg-accent text-accent-foreground font-semibold"
@@ -270,19 +316,19 @@ export default function ClientHeader() {
 
                     <div className="flex flex-col gap-0.5">
                       <Link
-                        to="/home"
+                        to="/orders"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                       >
-                        <Compass className="h-4 w-4 text-muted-foreground" />
-                        <span>Trang chủ cửa hàng</span>
+                        <ClipboardList className="h-4 w-4 text-primary" />
+                        <span>Đơn hàng của tôi</span>
                       </Link>
 
                       {user.role?.toUpperCase() === "ADMIN" && (
                         <Link
                           to="/admin"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                         >
                           <ShieldCheck className="h-4 w-4 text-primary" />
                           <span>Trang quản trị (Admin)</span>
@@ -368,16 +414,26 @@ export default function ClientHeader() {
 
           <nav className="flex flex-col gap-1 pb-3">
             {navLinks.map((item) => (
-              <NavLink
+              <a
                 key={item.title}
-                to={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
               >
                 <item.icon className="h-4 w-4 text-primary" />
                 <span>{item.title}</span>
-              </NavLink>
+              </a>
             ))}
+            {isAuthenticated && (
+              <Link
+                to="/orders"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                <ClipboardList className="h-4 w-4 text-primary" />
+                <span>Đơn hàng của tôi</span>
+              </Link>
+            )}
             {user?.role?.toUpperCase() === "ADMIN" && (
               <Link
                 to="/admin"
@@ -416,140 +472,170 @@ export default function ClientHeader() {
         </div>
       )}
 
-      {/* Shopping Cart Modal */}
-      <Dialog open={cartDialogOpen} onOpenChange={setCartDialogOpen}>
-        <DialogContent className="sm:max-w-lg w-[94vw] max-h-[88vh] flex flex-col p-6">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-lg font-bold">
-              <ShoppingCart className="h-5 w-5 text-primary" />
-              <span>Giỏ hàng của bạn ({totalItems})</span>
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Kiểm tra danh sách sản phẩm trước khi tiến hành đặt hàng
-            </DialogDescription>
-          </DialogHeader>
-
-          <Separator className="my-2" />
+      {/* Shopping Cart Right-Side Drawer */}
+      <Sheet open={cartDialogOpen} onOpenChange={setCartDialogOpen}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-[400px] p-0 gap-0 flex flex-col border-l border-border bg-card shadow-2xl"
+        >
+          {/* Cart Drawer Header */}
+          <SheetHeader className="px-5 py-4 border-b border-border flex-row items-center justify-between space-y-0">
+            <SheetTitle className="text-base font-bold text-foreground">
+              Giỏ hàng ({totalItems})
+            </SheetTitle>
+          </SheetHeader>
 
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <ShoppingBag className="h-7 w-7" />
+            /* Empty Cart State */
+            <div className="flex flex-1 flex-col items-center justify-center px-6 py-14 text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-border bg-muted/40 text-muted-foreground">
+                <ShoppingBag className="h-7 w-7 stroke-[1.5]" />
               </div>
-              <p className="text-sm font-medium text-foreground">
-                Giỏ hàng của bạn đang trống
-              </p>
-              <p className="text-xs text-muted-foreground max-w-xs">
-                Hãy khám phá các sản phẩm nổi bật tại trang chủ để thêm vào giỏ hàng nhé!
-              </p>
+              <div className="space-y-1 max-w-xs">
+                <p className="text-sm font-bold text-foreground">
+                  Giỏ hàng của bạn đang trống
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Hãy khám phá các sản phẩm trong cửa hàng và thêm vào giỏ hàng nhé!
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={() => {
+                  setCartDialogOpen(false)
+                  navigate("/home#products")
+                }}
+                className="mt-2 rounded-xl px-5 font-semibold cursor-pointer"
+              >
+                Tiếp tục mua sắm
+              </Button>
             </div>
           ) : (
             <>
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[50vh]">
-                {items.map(({ product, quantity }) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-muted/20 p-3"
-                  >
-                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border bg-card">
-                      {product.imageUrl ? (
-                        <img
-                          src={getAssetUrl(product.imageUrl)}
-                          alt={product.name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                          <ShoppingBag className="h-5 w-5" />
-                        </div>
-                      )}
-                    </div>
+              {/* Scrollable Cart Items List */}
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+                {items.map(({ product, quantity }) => {
+                  const unitPrice = Number(product.price) || 0
 
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {product.name}
-                      </p>
-                      <p className="text-xs font-bold text-primary tabular-nums mt-0.5">
-                        {formatVND(product.price)}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1 rounded-lg border border-border bg-card">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateQuantity(product.id, quantity - 1)
-                        }
-                        className="p-1.5 text-muted-foreground hover:text-foreground cursor-pointer"
-                      >
-                        <Minus className="h-3.5 w-3.5" />
-                      </button>
-                      <span className="px-2 text-xs font-bold tabular-nums">
-                        {quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateQuantity(product.id, quantity + 1)
-                        }
-                        className="p-1.5 text-muted-foreground hover:text-foreground cursor-pointer"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeItem(product.id)}
-                      className="p-1.5 text-muted-foreground hover:text-destructive cursor-pointer"
-                      title="Xóa khỏi giỏ"
+                  return (
+                    <div
+                      key={product.id}
+                      className="flex items-start gap-3.5"
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                      {/* Product Thumbnail */}
+                      <div
+                        onClick={() => {
+                          setCartDialogOpen(false)
+                          navigate(`/products/${product.slug}`)
+                        }}
+                        className="h-18 w-18 shrink-0 overflow-hidden rounded-xl border border-border bg-muted/30 cursor-pointer"
+                      >
+                        {product.imageUrl ? (
+                          <img
+                            src={getAssetUrl(product.imageUrl)}
+                            alt={product.name}
+                            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                            <ShoppingBag className="h-6 w-6" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Product Info & Controls */}
+                      <div className="flex-1 min-w-0">
+                        <p
+                          onClick={() => {
+                            setCartDialogOpen(false)
+                            navigate(`/products/${product.slug}`)
+                          }}
+                          className="text-sm font-semibold text-foreground leading-snug line-clamp-1 hover:text-primary transition-colors cursor-pointer"
+                          title={product.name}
+                        >
+                          {product.name}
+                        </p>
+
+                        <p className="mt-0.5 text-sm font-bold text-primary tabular-nums">
+                          {formatVND(unitPrice)}
+                        </p>
+
+                        <div className="mt-2.5 flex items-center justify-between">
+                          {/* Quantity Stepper */}
+                          <div className="inline-flex items-center rounded-lg border border-border bg-background/60 px-1 py-0.5">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateQuantity(product.id, quantity - 1)
+                              }
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                              aria-label="Giảm số lượng"
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                            <span className="w-7 text-center text-xs font-semibold text-foreground tabular-nums">
+                              {quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateQuantity(product.id, quantity + 1)
+                              }
+                              disabled={quantity >= product.quantity}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors cursor-pointer"
+                              aria-label="Tăng số lượng"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          </div>
+
+                          {/* Delete Item Button */}
+                          <button
+                            type="button"
+                            onClick={() => removeItem(product.id)}
+                            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                            title="Xóa sản phẩm"
+                            aria-label="Xóa sản phẩm"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
 
-              <Separator className="my-2" />
-
-              <div className="space-y-4">
+              {/* Sticky Bottom Footer */}
+              <div className="mt-auto border-t border-border p-5 space-y-4 bg-card">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Tổng cộng tạm tính:
+                  <span className="text-sm text-muted-foreground">
+                    Tạm tính
                   </span>
-                  <span className="text-lg font-extrabold text-primary tabular-nums">
+                  <span className="text-base font-bold text-primary tabular-nums">
                     {formatVND(totalPrice)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={clearCart}
-                    className="rounded-xl text-xs"
-                  >
-                    Xóa giỏ hàng
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      toast.success(
-                        "Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại VibeStore."
-                      )
-                      clearCart()
-                      setCartDialogOpen(false)
-                    }}
-                    className="flex-1 rounded-xl font-semibold"
-                  >
-                    Thanh toán ngay
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setCartDialogOpen(false)
+                    navigate("/checkout", {
+                      state: {
+                        mode: "cart",
+                      },
+                    })
+                  }}
+                  className="w-full h-11 rounded-xl font-bold text-sm cursor-pointer"
+                >
+                  Thanh toán
+                </Button>
               </div>
             </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </header>
   )
 }

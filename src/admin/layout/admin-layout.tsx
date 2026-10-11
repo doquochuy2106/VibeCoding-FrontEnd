@@ -1,14 +1,17 @@
+import { useState, useRef, useEffect } from "react"
 import { Outlet, NavLink, useLocation, Link, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   Users,
   FolderTree,
   Package,
+  ClipboardList,
   Settings,
   Bell,
   Search,
   LogOut,
   Home,
+  Compass,
 } from "lucide-react"
 import {
   Sidebar,
@@ -38,6 +41,7 @@ const navItems = [
   { title: "Người dùng", url: "/admin/users", icon: Users },
   { title: "Danh mục", url: "/admin/categories", icon: FolderTree },
   { title: "Sản phẩm", url: "/admin/products", icon: Package },
+  { title: "Đơn hàng", url: "/admin/orders", icon: ClipboardList },
   { title: "Cài đặt", url: "/admin/settings", icon: Settings },
 ]
 
@@ -46,13 +50,43 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
 
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const userDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target as Node)
+      ) {
+        setUserDropdownOpen(false)
+      }
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setUserDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [])
+
   const handleLogout = () => {
+    setUserDropdownOpen(false)
     logout()
     toast.info("Đã đăng xuất tài khoản.")
     navigate("/login")
   }
 
-  const avatarText = user?.username ? user.username.slice(0, 2).toUpperCase() : "AD"
+  const avatarText = user?.username
+    ? user.username.trim().charAt(0).toUpperCase()
+    : "A"
 
   return (
     <SidebarProvider>
@@ -152,19 +186,57 @@ export default function AdminLayout() {
             </Button>
             <ThemeToggle />
             <Separator orientation="vertical" className="mx-1 h-6" />
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs font-semibold">{avatarText}</AvatarFallback>
-              </Avatar>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1 text-xs text-destructive hover:bg-destructive/10"
-                onClick={handleLogout}
+
+            {/* Admin Avatar Dropdown Menu */}
+            <div className="relative" ref={userDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full ring-2 ring-primary/30 hover:ring-primary/70 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer select-none"
+                aria-label="Tài khoản quản trị"
+                aria-expanded={userDropdownOpen}
               >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Đăng xuất</span>
-              </Button>
+                <Avatar className="h-9 w-9 rounded-full pointer-events-none">
+                  <AvatarFallback className="bg-primary font-bold text-xs text-primary-foreground">
+                    {avatarText}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+
+              {userDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-card p-1.5 shadow-xl shadow-black/10 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3 py-2 border-b border-border/70 mb-1">
+                    <p className="text-[11px] font-medium text-muted-foreground">
+                      Tài khoản đã đăng nhập
+                    </p>
+                    <p className="font-semibold text-foreground text-sm truncate">
+                      {user?.username || "Admin"}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5">
+                    <Link
+                      to="/home"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                    >
+                      <Compass className="h-4 w-4 text-primary" />
+                      <span>Trang chủ cửa hàng</span>
+                    </Link>
+                  </div>
+
+                  <div className="my-1 border-t border-border/70" />
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

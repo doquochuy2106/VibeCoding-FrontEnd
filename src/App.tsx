@@ -2,6 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import ClientLayout from "./client/layout/client-layout"
 import HomePage from "./client/pages/home"
+import ProductDetailPage from "./client/pages/product-detail"
+import CheckoutPage from "./client/pages/checkout"
+import OrderSuccessPage from "./client/pages/order-success"
+import ClientOrdersPage from "./client/pages/orders"
 import LoginPage from "./client/pages/login"
 import RegisterPage from "./client/pages/register"
 import AdminLayout from "./admin/layout/admin-layout"
@@ -9,6 +13,7 @@ import DashboardPage from "./admin/pages/dashboard"
 import UsersPage from "./admin/pages/users"
 import CategoriesPage from "./admin/pages/categories"
 import ProductsPage from "./admin/pages/products"
+import OrdersPage from "./admin/pages/orders"
 import SettingsPage from "./admin/pages/settings"
 import { ThemeProvider } from "./hooks/use-theme"
 import { AuthProvider, useAuth } from "./hooks/use-auth"
@@ -49,6 +54,10 @@ function App() {
             <Route element={<ClientLayout />}>
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="/home" element={<HomePage />} />
+              <Route path="/products/:slug" element={<ProductDetailPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-success" element={<OrderSuccessPage />} />
+              <Route path="/orders" element={<ClientOrdersPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Route>
@@ -66,6 +75,7 @@ function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="products" element={<ProductsPage />} />
+              <Route path="orders" element={<OrdersPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
 

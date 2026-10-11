@@ -57,6 +57,8 @@ export const productsService = {
     apiClient.get<PaginatedResponse<Product>>("/products", { params, signal }),
   getById: (id: number, signal?: AbortSignal) =>
     apiClient.get<Product>(`/products/${id}`, { signal }),
+  getBySlug: (slug: string, signal?: AbortSignal) =>
+    apiClient.get<Product>(`/products/${encodeURIComponent(slug)}`, { signal }),
   create: (payload: CreateProductPayload, signal?: AbortSignal) =>
     apiClient.post<Product>("/products", payload, { signal }),
   update: (id: number, payload: UpdateProductPayload, signal?: AbortSignal) =>
